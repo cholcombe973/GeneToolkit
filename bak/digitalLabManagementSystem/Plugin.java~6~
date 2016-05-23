@@ -1,0 +1,14 @@
+package digitalLabManagementSystem;
+
+public abstract class Plugin {
+  private boolean debug;
+
+  public Plugin() {
+  }
+  public abstract void load();
+  public abstract void unload();
+  public void setDebugging(boolean debug){
+    this.debug = debug;
+  }
+
+}

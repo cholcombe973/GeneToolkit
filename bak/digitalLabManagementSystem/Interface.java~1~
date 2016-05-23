@@ -1,0 +1,21 @@
+package digitalLabManagementSystem;
+
+/**
+ *
+ * <p>Title: Interface</p>
+ *
+ * <p>Description: The purpose of this class is to keep track of dynamically loaded interfaces.
+ * It's job is to hold all the information that is efficiently possible to load.
+ * </p>
+ *
+ * <p>Copyright: Copyright (c) 2004</p>
+ *
+ * <p>Company: </p>
+ *
+ * @author not attributable
+ * @version 1.0
+ */
+public class Interface {
+  public Interface() {
+  }
+}

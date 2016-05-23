@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<Module>
+	<Name>BayesianModule</Name>
+	<Author>Chris Holcombe</Author>
+	<Description>Creates Bayesian networks for programs</Description>
+	<Version>1.0</Version>
+	<Library>BayesianModule.jar</Library>
+	<Class>BayesianModule</Class>
+	<Package>bayesianmodule</Package>
+	<Handle>bayesian</Handle>
+</Module>

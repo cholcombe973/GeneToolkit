@@ -1,0 +1,174 @@
+// Bayesian network 
+network "InternalNetwork" { //21 variables and 21 probability distributions
+}
+variable  "FunctionalRelationship" { //2 values
+	type discrete[2] {  "true"  "false" };
+	property "position = (502, 24)" ;
+}
+variable  "ExpressionDataType" { //2 values
+	type discrete[2] {  "true"  "false" };
+	property "position = (33, 85)" ;
+}
+variable  "Coexpression" { //2 values
+	type discrete[2] {  "true"  "false" };
+	property "position = (190, 85)" ;
+}
+variable  "DataNoise_Level" { //2 values
+	type discrete[2] {  "true"  "false" };
+	property "position = (311, 83)" ;
+}
+variable  "K-means_Clustering" { //2 values
+	type discrete[2] {  "true"  "false" };
+	property "position = (30, 223)" ;
+}
+variable  "Self_Organizing_Maps" { //2 values
+	type discrete[2] {  "true"  "false" };
+	property "position = (181, 226)" ;
+}
+variable  "Hierarchical_Clustering" { //2 values
+	type discrete[2] {  "true"  "false" };
+	property "position = (347, 227)" ;
+}
+variable  "Physical_Association" { //2 values
+	type discrete[2] {  "true"  "false" };
+	property "position = (568, 119)" ;
+}
+variable  "Genetic_Association" { //2 values
+	type discrete[2] {  "true"  "false" };
+	property "position = (912, 117)" ;
+}
+variable  "Affinity_precipitation" { //2 values
+	type discrete[2] {  "true"  "false" };
+	property "position = (407, 276)" ;
+}
+variable  "Two_Hybrid" { //2 values
+	type discrete[2] {  "true"  "false" };
+	property "position = (568, 278)" ;
+}
+variable  "Direct_Binding" { //2 values
+	type discrete[2] {  "true"  "false" };
+	property "position = (675, 278)" ;
+}
+variable  "Unlinked_Noncomplementation" { //2 values
+	type discrete[2] {  "true"  "false" };
+	property "position = (784, 306)" ;
+}
+variable  "Synthetic_Rescue" { //2 values
+	type discrete[2] {  "true"  "false" };
+	property "position = (881, 251)" ;
+}
+variable  "Dosage_Lethality" { //2 values
+	type discrete[2] {  "true"  "false" };
+	property "position = (1011, 308)" ;
+}
+variable  "Synthetic_Lethality" { //2 values
+	type discrete[2] {  "true"  "false" };
+	property "position = (1093, 254)" ;
+}
+variable  "Colocalization" { //2 values
+	type discrete[2] {  "true"  "false" };
+	property "position = (241, 438)" ;
+}
+variable  "Transcription_Factor_Binding" { //2 values
+	type discrete[2] {  "true"  "false" };
+	property "position = (359, 440)" ;
+}
+variable  "Purified_Complex" { //2 values
+	type discrete[2] {  "true"  "false" };
+	property "position = (579, 441)" ;
+}
+variable  "Reconstructed_Complex" { //2 values
+	type discrete[2] {  "true"  "false" };
+	property "position = (710, 444)" ;
+}
+variable  "Biochemical_Assay" { //2 values
+	type discrete[2] {  "true"  "false" };
+	property "position = (895, 445)" ;
+}
+probability (  "FunctionalRelationship" ) { //1 variable(s) and 2 values
+	table 
+		0.5	// p(true | evidence )
+		0.5; 	// p(false | evidence );
+}
+probability (  "ExpressionDataType" ) { //1 variable(s) and 2 values
+	table 
+		0.5	// p(true | evidence )
+		0.5; 	// p(false | evidence );
+}
+probability (  "Coexpression"  "FunctionalRelationship" ) { //2 variable(s) and 4 values
+	table 
+		 0.5 0.5 0.5 0.5;
+}
+probability (  "DataNoise_Level" ) { //1 variable(s) and 2 values
+	table 
+		0.5	// p(true | evidence )
+		0.5; 	// p(false | evidence );
+}
+probability (  "K-means_Clustering"  "DataNoise_Level"  "Coexpression"  "ExpressionDataType" ) { //4 variable(s) and 16 values
+	table 
+		 0.5 0.5 0.5 0.5 0.5 0.5 0.5 0.5 0.5 0.5 0.5 0.5 0.5 0.5 0.5 0.5;
+}
+probability (  "Self_Organizing_Maps"  "DataNoise_Level"  "Coexpression"  "ExpressionDataType" ) { //4 variable(s) and 16 values
+	table 
+		 0.5 0.5 0.5 0.5 0.5 0.5 0.5 0.5 0.5 0.5 0.5 0.5 0.5 0.5 0.5 0.5;
+}
+probability (  "Hierarchical_Clustering"  "DataNoise_Level"  "Coexpression"  "ExpressionDataType" ) { //4 variable(s) and 16 values
+	table 
+		 0.5 0.5 0.5 0.5 0.5 0.5 0.5 0.5 0.5 0.5 0.5 0.5 0.5 0.5 0.5 0.5;
+}
+probability (  "Physical_Association"  "FunctionalRelationship" ) { //2 variable(s) and 4 values
+	table 
+		 0.5 0.5 0.5 0.5;
+}
+probability (  "Genetic_Association"  "FunctionalRelationship" ) { //2 variable(s) and 4 values
+	table 
+		 0.5 0.5 0.5 0.5;
+}
+probability (  "Affinity_precipitation"  "Physical_Association" ) { //2 variable(s) and 4 values
+	table 
+		 0.5 0.5 0.5 0.5;
+}
+probability (  "Two_Hybrid"  "Physical_Association" ) { //2 variable(s) and 4 values
+	table 
+		 0.5 0.5 0.5 0.5;
+}
+probability (  "Direct_Binding"  "Physical_Association" ) { //2 variable(s) and 4 values
+	table 
+		 0.5 0.5 0.5 0.5;
+}
+probability (  "Unlinked_Noncomplementation"  "Genetic_Association" ) { //2 variable(s) and 4 values
+	table 
+		 0.5 0.5 0.5 0.5;
+}
+probability (  "Synthetic_Rescue"  "Genetic_Association" ) { //2 variable(s) and 4 values
+	table 
+		 0.5 0.5 0.5 0.5;
+}
+probability (  "Dosage_Lethality"  "Genetic_Association" ) { //2 variable(s) and 4 values
+	table 
+		 0.5 0.5 0.5 0.5;
+}
+probability (  "Synthetic_Lethality"  "Genetic_Association" ) { //2 variable(s) and 4 values
+	table 
+		 0.5 0.5 0.5 0.5;
+}
+probability (  "Colocalization"  "FunctionalRelationship" ) { //2 variable(s) and 4 values
+	table 
+		 0.5 0.5 0.5 0.5;
+}
+probability (  "Transcription_Factor_Binding"  "FunctionalRelationship" ) { //2 variable(s) and 4 values
+	table 
+		 0.5 0.5 0.5 0.5;
+}
+probability (  "Purified_Complex"  "Direct_Binding" ) { //2 variable(s) and 4 values
+	table 
+		 0.5 0.5 0.5 0.5;
+}
+probability (  "Reconstructed_Complex"  "Direct_Binding" ) { //2 variable(s) and 4 values
+	table 
+		 0.5 0.5 0.5 0.5;
+}
+probability (  "Biochemical_Assay"  "Direct_Binding" ) { //2 variable(s) and 4 values
+	table 
+		 0.5 0.5 0.5 0.5;
+}

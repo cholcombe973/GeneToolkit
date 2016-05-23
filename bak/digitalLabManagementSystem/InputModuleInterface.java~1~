@@ -1,0 +1,10 @@
+package genetoolkit;
+
+public interface InputModuleInterface {
+
+  public void getData();
+  public void notifyCompleted();
+  public void initModule();
+  public void cleanupModule();
+
+}

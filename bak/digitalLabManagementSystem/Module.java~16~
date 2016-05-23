@@ -1,0 +1,47 @@
+package digitalLabManagementSystem;
+
+public abstract class Module {
+  private long pid;
+  private String author;
+  private String description;
+  private String name;
+
+  public Module() {
+
+  }
+  /**
+   * Method called on startup.  Place any code here that needs to be initalized.
+   */
+  public abstract void initModule();
+  /**
+   * Method called on shutdown.  Close any open resources here before shutdown.
+   */
+  public abstract void cleanupModule();
+
+  public void setName(String name){
+    this.name = name;
+  }
+  public String getName(){
+    return name;
+  }
+  public void setModulePID(long pid){
+    this.pid = pid;
+  }
+  public long getModulePID(){
+    return pid;
+  }
+  public void setAuthor(String author){
+    this.author = author;
+  }
+  public String getAuthor(){
+    return author;
+  }
+  public void setDescription(String description){
+    this.description = description;
+  }
+  public String getDescription(){
+    return description;
+  }
+
+
+}

@@ -1,0 +1,165 @@
+package digitalLabManagementSystem;
+
+/*
+  This class provides the basis for a menu system that can be built through method calls
+  This class wraps a JMenu and allows multiple menus to be stored in an ArrayList
+  Plugin's will be using this to go connect themselves to the gui.
+
+*/
+import java.awt.*;
+import java.util.*;
+import javax.swing.*;
+import javax.swing.event.*;
+
+public class MenuEngine {
+  private ArrayList menus = new ArrayList();
+  private int menuID = 0;
+
+  //create a new menu and return the id
+  public int createNewMenu(){
+    menuID++;
+    menus.add(new JMenu());
+    return menuID;
+  }
+  //create a new menu with specified action and return the id
+  public int createNewMenu(Action a){
+    menuID++;
+    menus.add(new JMenu(a));
+    return menuID;
+  }
+  //create a new menu with specified string and return the id
+  public int createNewMenu(String s){
+    menuID++;
+    menus.add(new JMenu(s));
+    return menuID;
+  }
+  //create a new menu with specified string and tear off menu and return the id
+  public int createNewMenu(String s,boolean b){
+    menuID++;
+    menus.add(new JMenu(s,b));
+    return menuID;
+  }
+  public void removeMenu(int menuID){
+    menus.remove(menuID);
+  }
+  //add an action to the menu with given id
+  public void addAction(Action a,int menuID){
+    ((JMenu)menus.get(menuID)).add(a);
+  }
+  //add a component to the menu with given id
+  public void addComponent(Component c,int menuID){
+    ((JMenu)menus.get(menuID)).add(c);
+  }
+  //add a component to the menu with the given id at a given index
+  public void addComponent(Component c, int index,int menuID){
+    ((JMenu)menus.get(menuID)).add(c,index);
+  }
+  //add a menu item to the menu with the given id
+  public void addMenuItem(JMenuItem item,int menuID){
+    ((JMenu)menus.get(menuID)).add(item);
+  }
+  //add a menu with the given string text with given id
+  public void addString(String s,int menuID){
+    ((JMenu)menus.get(menuID)).add(s);
+  }
+  //add a listener to the menu with the given id
+  public void addMenuListener(MenuListener l,int menuID){
+    ((JMenu)menus.get(menuID)).addMenuListener(l);
+  }
+  //add a seperator to the menu at given id
+  public void addSeperator(int menuID){
+    ((JMenu)menus.get(menuID)).addSeparator();
+  }
+
+  public void applyComponentOrientation(ComponentOrientation o,int menuID){
+    ((JMenu)menus.get(menuID)).applyComponentOrientation(o);
+  }
+  //programmatically click the given menu with id
+  public void doClick(int menuID){
+    ((JMenu)menus.get(menuID)).doClick();
+  }
+  //returns the delay that is set for the given menu with id
+  public int getDelay(int menuID){
+    return ((JMenu)menus.get(menuID)).getDelay();
+  }
+  //return the component count of the menu with given id
+  public int getMenuComponentCount(int menuID){
+    return ((JMenu)menus.get(menuID)).getMenuComponentCount();
+  }
+  //return the name of the look and feel class that renders this menu with given id
+  public String getUIClassID(int menuID){
+    return ((JMenu)menus.get(menuID)).getUIClassID();
+  }
+  //inserts a menu
+  public void insert(Action a, int pos, int menuID){
+    ((JMenu)menus.get(menuID)).insert(a,pos);
+  }
+  public void insert(JMenuItem mi,int pos, int menuID){
+    ((JMenu)menus.get(menuID)).insert(mi,pos);
+  }
+  public void insert(String s,int pos, int menuID){
+    ((JMenu)menus.get(menuID)).insert(s,pos);
+  }
+  public void insertSeperator(int index, int menuID){
+    ((JMenu)menus.get(menuID)).insertSeparator(index);
+  }
+  public boolean isMenuComponent(Component c, int menuID){
+    return ((JMenu)menus.get(menuID)).isMenuComponent(c);
+  }
+  public boolean isPopupMenuVisible(int menuID){
+    return ((JMenu)menus.get(menuID)).isPopupMenuVisible();
+  }
+  public boolean isSelected(int menuID){
+    return ((JMenu)menus.get(menuID)).isSelected();
+  }
+  public boolean isTearOff(int menuID){
+    return ((JMenu)menus.get(menuID)).isTearOff();
+  }
+  public boolean isTopLevelMenu(int menuID){
+    return ((JMenu)menus.get(menuID)).isTopLevelMenu();
+  }
+  public void remove(Component c,int menuID){
+    ((JMenu)menus.get(menuID)).remove(c);
+  }
+  public void remove(int pos, int menuID){
+    ((JMenu)menus.get(menuID)).remove(pos);
+  }
+  public void remove(JMenuItem item, int menuID){
+    ((JMenu)menus.get(menuID)).remove(item);
+  }
+  public void removeAll(int menuID){
+    ((JMenu)menus.get(menuID)).removeAll();
+  }
+  public void removeMenuListener(MenuListener l, int menuID){
+    ((JMenu)menus.get(menuID)).removeMenuListener(l);
+  }
+  public void setAccelerator(KeyStroke keyStroke, int menuID){
+    ((JMenu)menus.get(menuID)).setAccelerator(keyStroke);
+  }
+  public void setComponentOrientation(ComponentOrientation o, int menuID){
+    ((JMenu)menus.get(menuID)).setComponentOrientation(o);
+  }
+  public void setDelay(int d, int menuID){
+    ((JMenu)menus.get(menuID)).setDelay(d);
+  }
+  public void setMenuLocation(int x, int y, int menuID){
+    ((JMenu)menus.get(menuID)).setMenuLocation(x,y);
+  }
+  public void setModel(ButtonModel newModel,int menuID){
+    ((JMenu)menus.get(menuID)).setModel(newModel);
+  }
+  public void setPopupMenuVisible(boolean b, int menuID){
+    ((JMenu)menus.get(menuID)).setPopupMenuVisible(b);
+  }
+  public void setSelected(boolean b, int menuID){
+    ((JMenu)menus.get(menuID)).setSelected(b);
+  }
+  public void updateUI(int menuID){
+    ((JMenu)menus.get(menuID)).updateUI();
+  }
+
+  //This is used by the main GUI to get all menus to render
+  public JMenu[] getAllMenus(){
+    return (JMenu[])menus.toArray(new JMenu[0]);
+  }
+}

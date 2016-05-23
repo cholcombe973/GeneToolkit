@@ -1,0 +1,42 @@
+package digitalLabManagementSystem;
+
+import java.util.logging.*;
+
+
+/**
+ * 
+ * <p>Title: LogModule</p>
+ * <p>Description: The module that handles the logging of information for the plugin architecture.  </p>
+ * <p>Copyright: Copyright (c) 2004</p>
+ * <p>Company: </p>
+ * @author not attributable
+ * @version 1.0
+ */
+public class LogModule extends Module implements ILog{
+  private ModuleManager ref;
+  private ReferenceEngine re;
+  private Logger logger = Logger.getLogger("LogModuleLogger");
+  
+  public LogModule(ReferenceEngine re) {
+    this.re = re;
+  }
+  public void logSevereMsg(String msg){
+    logger.log(Level.SEVERE,msg);
+  }
+  public void logConfigMsg(String msg){
+    logger.log(Level.CONFIG,msg);
+  }
+  public void logWarningMsg(String msg){
+    logger.log(Level.WARNING,msg);
+  }
+  public void initModule(){
+    ref = (ModuleManager)re.getReference("ModuleManager");
+    ref.registerModule(".log",this);
+    logger.addHandler(new FileHandler());
+    
+  }
+  public void cleanupModule(){
+    if(ref!=null)
+      ref.unregisterModule(".log");      
+  }
+}

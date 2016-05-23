@@ -1,0 +1,11 @@
+package parallelComputingLib;
+
+/*
+  Stores some information about each worker for the server
+*/
+
+public class ComputerProperties {
+  public String computerID;
+  public String computerIP;
+  public boolean busy;
+}

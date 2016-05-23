@@ -1,0 +1,18 @@
+package digitalLabManagementSystem;
+
+/**
+   Events to throw around the place
+**/
+
+public class GlobalEvent {
+  public static final int exampleModifier = 0x0001; //potential modifiers
+  private int modifiers;
+
+
+  public GlobalEvent(int modifiers) {
+    this.modifiers = modifiers;
+  }
+  public int getModifiers(){
+    return modifiers;
+  }
+}

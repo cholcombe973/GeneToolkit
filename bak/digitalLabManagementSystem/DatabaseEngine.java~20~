@@ -1,0 +1,125 @@
+package digitalLabManagementSystem;
+
+/**
+   Handles all details of a database
+   This Engine should be started 3rd
+ */
+
+import java.io.*;
+import java.sql.*;
+import java.util.*;
+
+public class DatabaseEngine {
+  private Connection con;
+  private String driver; // = "org.gjt.mm.mysql.Driver";
+  private String connectionString; // = "jdbc:mysql://localhost:3306/collegematch?user=ColdFusion&password=metal656";
+  private Properties databaseInfo;
+  private boolean usePropertyFile = false;
+  private PreparedStatement ps;
+  private ReferenceEngine re;
+
+  public DatabaseEngine(boolean usePropertyFile,ReferenceEngine re) {
+    this.re = re;
+    re.putReference("DatabaseEngine",this);
+    databaseInfo = new Properties();
+    this.usePropertyFile = usePropertyFile;
+  }
+  public void setPropertiesFile(InputStream inStream){
+    try {
+      databaseInfo.load(inStream);
+    }catch (IOException e) {System.out.println("IOException in setPropertiesFile: " + e);}
+  }
+  public void setConnectionString(String connectionString){
+    this.connectionString = connectionString;
+  }
+  public String getConnnectionString(){
+    return connectionString;
+  }
+  public void setDriver(String driver){
+    this.driver = driver;
+  }
+  public String getDriver(){
+    return driver;
+  }
+  public void prepareStatement(String statement){
+    try {
+      ps = con.prepareStatement(statement);
+    }catch (SQLException e) {System.out.println("SQLException in prepareStatement: " + e);}
+  }
+  public ResultSet executePreparedQuery(){
+    if(ps !=null){
+      try {
+        return ps.executeQuery();
+      }catch (SQLException e) {
+        System.out.println("SQLException in executeStatement:"+e);
+        return null;
+      }
+    }else{
+      //log PreparedStatement was null exception
+      ((LogEngine)re.getReference("LogEngine")).logSevereError("PreparedStatement null in executePreparedQuery");
+      return null;
+    }
+  }
+  public int exectePreparedUpdate(){
+    // -1 indicates an error SQL will never return that
+    if(ps !=null){
+      try {
+        return ps.executeUpdate();
+      }catch (SQLException e) {
+        System.out.println("SQLException in executePreparedUpdate: " + e);
+        return -1;
+      }
+    }else{
+      //log PreparedStatement was null exception
+      ((LogEngine)re.getReference("LogEngine")).logSevereError("PreparedStatement null in executePreparedUpdate");
+      return -1;
+    }
+  }
+  public void connect() {
+    // get connected to the database;
+    if(!usePropertyFile){
+      try{
+        Class.forName(driver);
+      }catch(ClassNotFoundException e){
+        ((LogEngine)re.getReference("LogEngine")).logSevereError("ClassNotFound in connect without Property File: " + e);
+        System.out.println("ClassNotFoundException: " + e);
+      }
+      try{
+        con = DriverManager.getConnection(connectionString);
+      }catch(SQLException e){
+        ((LogEngine)re.getReference("LogEngine")).logSevereError("SQLException in connect without Property File: " + e);
+        System.out.println("SQL Exception found: " + e);
+      }
+    }else{
+      if(databaseInfo!=null){
+        try {
+          Class.forName(databaseInfo.getProperty("Driver"));
+        }catch (ClassNotFoundException e) {
+          ((LogEngine)re.getReference("LogEngine")).logSevereError("ClassNotFound in connect with Property File: " + e);
+          System.out.println("ClassNotFoundException: " + e);
+        }
+        try {
+          con = DriverManager.getConnection(databaseInfo.getProperty("Connection"));
+        }catch (SQLException e) {
+          ((LogEngine)re.getReference("LogEngine")).logSevereError("SQLException in connect with Property File: " + e);
+          System.out.println("SQL Exception found: " + e);
+        }
+      }
+      else{
+        //this should be logged
+        ((LogEngine)re.getReference("LogEngine")).logSevereError("Database Property file is null in connect");
+      }
+    }
+  }
+  public void shutdown(){
+    if(con!=null){
+      try {
+        con.close();
+      }catch (SQLException e) {System.out.println("SQLException in shutdown: " + e);}
+    }else{
+      //log a Connection null exception
+      ((LogEngine)re.getReference("LogEngine")).logSevereError("Database Connection is null in shutdown");
+    }
+  }
+
+}

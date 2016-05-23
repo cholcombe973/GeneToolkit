@@ -1,0 +1,324 @@
+package digitalLabManagementSystem;
+
+import java.io.*;
+import java.lang.reflect.*;
+import java.net.*;
+import java.util.*;
+
+/**
+ *
+ * <p>Title: ModuleManager</p>
+ * <p>Description:
+ * If the module uses symbols from another module, it is marked as depending on that module during dependency
+ * recalculation, achieved by running depmod -a command on boot (e.g. after installing a new kernel)
+ * Todo:
+ * Plugins need the option of being shutdown/removed/replaced by the ModuleManager system.
+ * Things are about to get more complicated.
+ * </p>
+ * <p>Copyright: Copyright (c) 2004</p>
+ * <p>Company: </p>
+ * @author not attributable
+ * @version 1.0
+ */
+public class ModuleManager {
+  private LinkedList taskQueue = new LinkedList();
+  private Hashtable handlers = new Hashtable(100); //associate a module with an extension.  If extension is known pass data to module that can handle it
+  private Hashtable usedPIDs = new Hashtable(100);
+  private String kernelVersion = "1.0";
+  private ReferenceEngine re;
+  private Timer daemonTimer;
+  private String moduleDirectory;
+  private String interfaceDirectory;
+  private Random pidGenerator = new Random(System.currentTimeMillis());
+  private URLClassLoader classLoader;
+  private InterfaceTracker iTracker = new InterfaceTracker(); //transparent interface tracking
+  private ArrayList modules = new ArrayList(50);
+
+  /**
+   * The Module manager handles storing references of modules.  References to modules are actually file extension
+   * associations.  So an xml module would handle .xml files.  And you would refer to that module by it's
+   * registered extension.  Modules must obtain a PID(process ID) from this class.  With a seperate and unique
+   * process id for each module they can be tracked easier.
+   * @param re ReferenceEngine
+   */
+  public ModuleManager(ReferenceEngine re) {
+    this.re = re;
+    re.putReference("ModuleManager",this);
+    setupTaskDaemon();
+  }
+  /**
+   * Generates a new process ID for a module
+   * @return long
+   */
+  public long getPID(){
+    //generate a new Process ID for a module
+    long id = pidGenerator.nextLong();
+    while(!ensureNewPID(id))
+      id = pidGenerator.nextLong();
+    usedPIDs.put(new Long(id),new Long(id));
+    return id;
+  }
+  /**
+   * Returns the module directory where plugins are located.
+   * @return String The file location of the plugins.
+   */
+  public String getModuleDirectory(){
+    return moduleDirectory;
+  }
+  /**
+   * Sets the directory for which the ModuleManager will search for new modules.
+   * @param moduleDirectory String
+   */
+  public void setModuleDirectory(String moduleDirectory){
+    this.moduleDirectory = moduleDirectory;
+  }
+  /**
+   * Return the directory that is assigned to hold interfaces for plugins.
+   * @return String The file location of the interfaces
+   */
+  public String getInterfaceDirectory(){
+    return interfaceDirectory;
+  }
+  /**
+   * Sets the directory for which the ModuleManger will search for interfaces.
+   * @param interfaceDirectory String
+   */
+  public void setInterfaceDirectory(String interfaceDirectory){
+    this.interfaceDirectory = interfaceDirectory;
+  }
+  /**
+   * Tests if a PID is unique.  If it isn't this method return false, else true.
+   * @param toTest long
+   * @return boolean
+   */
+  private boolean ensureNewPID(long toTest){
+    if(usedPIDs.get(new Long(toTest))!=null){
+      return false;
+    }
+    return true;
+  }
+  /**
+   * Register's a module with a particular extension or general name.  When new files are found
+   * and an extension is found that module will be invoked to parse.  Module's can also have a general
+   * name by which they can be called instead.
+   * @param handlesExtension String
+   * @param m Module
+   */
+  public void registerModule(String handlesExtension, Module m){
+    handlers.put(handlesExtension,m);
+  }
+  public void unregisterModule(String handlesExtension){
+    handlers.remove(handlesExtension);
+  }
+  /**
+   * Returns an instance of the classloader that was used to startup all the plugins
+   * @return URLClassLoader
+   */
+  public URLClassLoader getClassLoader(){
+    return classLoader;
+  }
+  public Module[] getAllModules(){
+    return (Module[])modules.toArray(new Module[]{});
+  }
+  public void findModules(){
+    try {
+      File f = new File(moduleDirectory);
+      File[] directories = f.listFiles();
+//      URLClassLoader classLoader;
+
+      for(File tmp : directories){
+        if(tmp.isDirectory()){
+          File[] pluginDirectories = tmp.listFiles();
+          URL[] pluginURLs = new URL[pluginDirectories.length];
+          for(int j=0;j<pluginDirectories.length;j++){
+            pluginURLs[j]= new URL("file:\\"+pluginDirectories[j].getAbsolutePath());
+            System.out.println("Path:" + "file:\\"+pluginDirectories[j].getAbsolutePath());
+          }
+          classLoader = new URLClassLoader(pluginURLs);
+          for(File pluginDirectory : pluginDirectories){
+            String name = pluginDirectory.getName();
+            if(name.substring(name.lastIndexOf('.'),name.length()).equalsIgnoreCase(".xml")){
+              XMLModule xml = (XMLModule)requestModule(".xml");
+              xml.setParseFile(pluginDirectory);
+              Hashtable params = xml.parseFile();
+//              System.out.println("Loading class: " + (String)params.get("Package")+"."+(String)params.get("Class"));
+              Class c = classLoader.loadClass((String)params.get("Package")+"."+(String)params.get("Class"));
+              Constructor cons = c.getConstructor(new Class[]{new ReferenceEngine().getClass()});
+              Module m = (Module)cons.newInstance(new Object[]{re});
+              //Load the module params from the xml file
+              m.setAuthor((String)params.get("Author"));
+              m.setDescription((String)params.get("Description"));
+              m.setModulePID(getPID());
+              m.setName((String)params.get("Name"));
+              m.setVersion((String)params.get("Verison"));
+              //Load the module params from the xml file
+              m.initModule();
+              modules.add(m);
+            }
+          }
+        }
+      }
+      listModules();
+    }catch (MalformedURLException ex) {System.out.println("MalformedURLException in ModuleManager findModules(): " + ex); ex.printStackTrace(System.out);}
+    catch(ClassNotFoundException ex){System.out.println("ClassNotFoundException in ModuleManager findModules(): " + ex); ex.printStackTrace(System.out);}
+    catch(InstantiationException ex){System.out.println("InstantiationException in ModuleManager findModules(): " + ex); ex.printStackTrace(System.out);}
+    catch(IllegalAccessException ex){System.out.println("IllegalAccessException in ModuleManager findModules(): " + ex); ex.printStackTrace(System.out);}
+    catch(NoSuchMethodException ex){System.out.println("NoSuchMethodException in ModuleManager findModules(): " + ex);}
+    catch(InvocationTargetException ex){System.out.println("InvocationTargetException in ModuleManager findModules(): " + ex);}
+  }
+  private void findInterfaces(){
+    try{
+      File f = new File(interfaceDirectory);
+      File[] directories = f.listFiles();
+      URLClassLoader classLoader;
+
+      for(File directory : directories){
+        if(directory.isDirectory()){
+          File[] interfaceFolders = directory.listFiles();
+          URL[] interfaceURLs = new URL[interfaceFolders.length];
+          for(int j=0;j<interfaceFolders.length;j++){
+            interfaceURLs[j]= new URL("file:\\"+interfaceFolders[j].getAbsolutePath());
+          }
+          classLoader = new URLClassLoader(interfaceURLs);
+
+          for(File interfaceFile : interfaceFolders){
+            String name = interfaceFile.getName();
+            if(name.substring(name.lastIndexOf('.'),name.length()).equalsIgnoreCase(".xml")){
+              XMLModule xml = (XMLModule)requestModule(".xml");
+              xml.setParseFile(interfaceFile);
+              Hashtable params = xml.parseFile();
+              Class c = classLoader.loadClass((String)params.get("Package")+"."+(String)params.get("Class"));
+              Method[] declaredMethods = c.getDeclaredMethods();
+              Package p = c.getPackage();
+              String interfaceName = c.getName();
+
+//              Constructor cons = c.getConstructor(new Class[]{new ReferenceEngine().getClass()});
+//              Module m = (Module)cons.newInstance(new Object[]{re});
+              //Load the module params from the xml file
+//              m.setAuthor((String)params.get("Author"));
+//              m.setDescription((String)params.get("Description"));
+//              m.setModulePID(getPID());
+//              m.setName((String)params.get("Name"));
+//              m.setVersion((String)params.get("Verison"));
+              //Load the module params from the xml file
+//              m.initModule();
+            }
+            if(name.substring(name.lastIndexOf('.'),name.length()).equalsIgnoreCase(".class")){
+              Class c = classLoader.loadClass(name);
+              Method[] declaredMethods = c.getDeclaredMethods();
+              Package p = c.getPackage();
+              String interfaceName = c.getName(); //or consider getting it out of the props file
+
+              //now what do i do with this array of crap?
+              //^_^ check it .. Folder with a props file telling what class implements this interface
+              //then i map the interface to the class, good keep going.. ummmm
+              /*
+                    Super Dynamic Interfaces!!!!
+
+                            Interface
+                           /	  \
+                         Interface Packages
+                        /        |         \
+                       Properties Files, Interface,
+
+Interface Class (This should store all relavent information about the interface as much as efficiently feasible)
+private String properties File
+private Method[] declaredMethods;
+
+Load the properties files
+Map the interface -> Class
+
+
+Applications communicate with the class through the interface.  No real difference when plugins are requested.
+
+
+The java.lang.Class class has a cast method now that can do blind casts
+*/
+
+            }
+          }
+        }
+      }
+    }catch(MalformedURLException ex){System.out.println("MalformedURLException in ModuleManager findInterfaces(): " + ex); ex.printStackTrace(System.out);}
+    catch(ClassNotFoundException ex){System.out.println("ClassNotFoundException in ModuleManager findInterfaces(): " + ex); ex.printStackTrace(System.out);}
+//    catch(InstantiationException ex){System.out.println("InstantiationException in ModuleManager findInterfaces(): " + ex); ex.printStackTrace(System.out);}
+//    catch(IllegalAccessException ex){System.out.println("IllegalAccessException in ModuleManager findInterfaces(): " + ex); ex.printStackTrace(System.out);}
+//    catch(NoSuchMethodException ex){System.out.println("NoSuchMethodException in ModuleManager findInterfaces(): " + ex);}
+//    catch(InvocationTargetException ex){System.out.println("InvocationTargetException in ModuleManager findInterfaces(): " + ex);}
+  }
+  public Module requestModule(String extension){
+    if(handlers.containsKey(extension))
+      return (Module)handlers.get(extension);
+    else{
+      System.out.println("Requested Module with no file association: " + extension);
+      return null;
+    }
+  }
+
+  public void scheduleTask(Runnable task){
+    //sets up a task to be run
+    //returns non zero if the task was not already on the queue
+    taskQueue.add(task);
+  }
+  public void setupTaskDaemon(){
+  	daemonTimer = new Timer();
+  	daemonTimer.schedule(new TimerTask(){
+  		public void run(){
+  			runTaskQueue();
+  		}
+  	},0,10000);//run this shizzle every 10 seconds
+  }
+  public void shutdownModules(){
+    Enumeration e = handlers.elements();
+    while(e.hasMoreElements())
+      ((Module)e.nextElement()).cleanupModule();
+    //remove the classloader also..
+  }
+  public void shutdownTaskDaemon(){
+  	if(daemonTimer!=null)
+  		daemonTimer.cancel();
+  }
+  private void runTaskQueue(){
+    //runs queued tasks when no other pressing work to do
+    while(taskQueue.size()>0){
+      new Thread( (Runnable) taskQueue.getFirst() ).start();
+      taskQueue.removeFirst();
+    }
+  }
+  /**
+   * Prints all relavent information about a module, e.g. author, description, parameters the module accepts, etc.
+   * @param handlesExtension String The extension associated with the module for which it handles.
+   */
+  public void modInfo(String handlesExtension){
+    if(handlers.containsKey(handlesExtension)){
+      Module m = (Module)handlers.get(handlesExtension);
+      System.out.println("Module Info: \nModuleID: " + m.getModulePID()+"\nModuleName: "+m.getName()+
+                         "\nModuleDescription: "+m.getDescription()+"\nModuleAuthor: " + m.getAuthor());
+    }
+    else
+      System.out.println("Module not found for: " + handlesExtension);
+  }
+  /**
+   * Returns the version of the kernel that the system is currently using.
+   * @return String A string representation of the numbered version.
+   */
+  public String kernelVersion(){
+    //return the version of the ModuleManager
+    return kernelVersion;
+  }
+  /**
+   * Prints all the modules currently registered with some relavent information.
+   */
+  public void listModules(){
+    System.out.println();
+    System.out.println("Handlers length: " + handlers.size());
+    Collection<Module> g = handlers.values();
+    Enumeration<String> h = handlers.keys();
+    for(Module m : g){
+      String s =h.nextElement();
+      System.out.println();
+      System.out.println("Module Info: \nModuleKey: " + s + " \nModuleID: " + m.getModulePID()+"\nModuleName: "+m.getName()+
+                         "\nModuleDescription: "+m.getDescription() + "\nModuleAuthor: " + m.getAuthor());
+    }
+  }
+}

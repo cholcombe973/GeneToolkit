@@ -1,0 +1,14 @@
+package digitalLabManagementSystem;
+
+/*
+   This interface should create the general contract for filesystems
+   All filesystems should be regarded in the same way by the environment
+   The environment will ask classes that implement this interface to deal with
+   some form of input or output without the environment needing to know
+   exactly what it is.
+ */
+
+public interface FileSystem {
+
+
+}

@@ -1,0 +1,7 @@
+package genetoolkit;
+
+public class EngineModuleManager {
+  public EngineModuleManager() {
+  }
+
+}

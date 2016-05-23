@@ -1,0 +1,7 @@
+package digitalLabManagementSystem;
+
+public class BackupModuleManager {
+  public BackupModuleManager() {
+  }
+
+}

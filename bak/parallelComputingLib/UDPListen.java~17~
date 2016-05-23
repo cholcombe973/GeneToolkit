@@ -1,0 +1,95 @@
+package parallelComputingLib;
+
+import java.io.*;
+import java.net.*;
+import java.nio.*;
+import java.nio.channels.*;
+import java.util.*;
+
+/*
+  This class allows multiple objects to listen for data with a single channel. Callback event model used.
+
+  To use this class implement UDPListener and override NetworkEventOccured(NetworkEvent e){} with custom code.
+  Then startup UDPListen and register your class to listen for events.
+*/
+
+public class UDPListen extends Thread implements NetworkListener{
+  private ArrayList listeners = new ArrayList();
+  private DatagramChannel channel;
+  private String inet;
+  private int port;
+
+  public UDPListen(int port){
+    this.port = port;
+  }
+  public void addListener(NetworkListener listener){
+    listeners.add(listener);
+  }
+  public void removeListener(NetworkListener listener){
+    listeners.remove(listener);
+  }
+  private boolean compareAddresses(String socket,String inet){
+    String s = socket.substring(socket.indexOf("/")+1,socket.indexOf(":"));
+    String t = inet.substring(inet.indexOf("/")+1,inet.length());
+    if(s.equalsIgnoreCase(t)){
+      return true;
+    }
+    return false;
+  }
+  public void run(){
+    //Allocate buffers
+    ByteBuffer dst = ByteBuffer.allocateDirect(2048);
+    try {
+      Selector selector = Selector.open();
+      channel.register(selector, SelectionKey.OP_READ);
+
+      while (selector.isOpen()) {
+        selector.select(0);
+        //Get set of ready objects
+        Iterator it = selector.selectedKeys().iterator();
+        //Look at each key in the set
+        while (selector.selectedKeys().size() > 0) {
+          SelectionKey key = (SelectionKey) it.next();
+          if (key.isReadable()) {
+            //read what is ready
+            //Get Channel
+            DatagramChannel dChannel = (DatagramChannel) key.channel();
+            dst.clear();
+            SocketAddress a = dChannel.receive(dst);
+            dst.flip(); //Make buffer readable
+            //If info is from local computer ignore it and break this while
+            if (compareAddresses(a.toString(), inet)) {
+              break;
+            }
+            String socketString = a.toString();
+
+            //callback to listeners with data
+            NetworkEvent e = new NetworkEvent(dst, NetworkEvent.udpEvent,socketString.substring(socketString.indexOf("/") + 1,socketString.indexOf(":")));
+            fireUDPEvent(e);
+
+          } //End if readable
+          it.remove(); //Remove key it's been handled
+        } //End while iterator
+      } //End while selector
+    }catch (IOException e) {System.out.println("IOException in UDPListen run(): " + e);}
+  }
+  public void setup(){
+    try {
+      inet = InetAddress.getLocalHost().toString();
+      channel = channel.open();
+      channel.configureBlocking(false); //Configure for non-blocking I/0
+      DatagramSocket socket = channel.socket();
+      InetSocketAddress isA = new InetSocketAddress(InetAddress.getByName("0.0.0.0"), port);
+      socket.bind(isA);
+    }catch (IOException ex) {System.out.println("IOException in UDPListen setup(): " + ex);}
+  }
+  //notifies all listeners that an event has occured
+  private void fireUDPEvent(NetworkEvent e){
+    int length = listeners.size();
+    for(int i=0;i<length;i++)
+      ((NetworkListener)listeners.get(i)).NetworkEventOccured(e);
+  }
+  public void NetworkEventOccured(NetworkEvent e){
+    //do nothing, this is an implementation side effect
+  }
+}

@@ -1,0 +1,11 @@
+package digitalLabManagementSystem;
+
+/*
+   Handles the details of loading, unloading and module interdependencies
+ */
+
+public class ModuleEngine {
+  public ModuleEngine() {
+  }
+
+}

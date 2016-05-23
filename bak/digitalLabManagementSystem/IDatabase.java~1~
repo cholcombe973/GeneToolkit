@@ -1,0 +1,10 @@
+package digitalLabManagementSystem;
+/*
+  Interface that database plugins will conform to
+*/
+import java.io.*;
+
+public interface IDatabase {
+  public void setPropertiesFile(File f);
+
+}

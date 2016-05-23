@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<Module>
+	<Name>JavaBayesModule</Name>
+	<Author>Chris Holcombe</Author>
+	<Description>Fires up the JavaBayes jar</Description>
+	<Version>1.0</Version>
+	<Library>JavaBayesModule.jar</Library>
+	<Class>JavaBayesModule</Class>
+	<Package>javabayesmodule</Package>
+	<Handle>JavaBayes</Handle>
+</Module>

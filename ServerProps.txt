@@ -1,0 +1,2 @@
+StorageFile=Results\ResultsHuge.txt
+DataFile=Data\DataHuge.txt

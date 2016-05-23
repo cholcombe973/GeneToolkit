@@ -1,0 +1,4 @@
+package genetoolkit;
+
+public interface OutputModuleInterface {
+}

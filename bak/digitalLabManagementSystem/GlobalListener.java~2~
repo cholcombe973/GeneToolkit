@@ -1,0 +1,9 @@
+package digitalLabManagementSystem;
+
+/**
+    Defines the contract for global listening
+ */
+
+public interface GlobalListener {
+  public void globalActionPerformed(GlobalEvent e);
+}

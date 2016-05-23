@@ -1,0 +1,9 @@
+package genetoolkit;
+
+public interface BackupModuleInterface {
+
+  public void backupNetwork();
+  public void notifyCompleted();
+  public void initModule();
+  public void cleanupModule();
+}

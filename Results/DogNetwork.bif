@@ -1,0 +1,47 @@
+// Bayesian network 
+network "DogNetwork" { //5 variables and 5 probability distributions
+}
+variable  "family-out" { //2 values
+	type discrete[2] {  "true"  "false" };
+	property "position = (124, 104)" ;
+}
+variable  "bowl-problem" { //2 values
+	type discrete[2] {  "true"  "false" };
+	property "observed false" ;
+	property "position = (290, 109)" ;
+}
+variable  "dog-out" { //2 values
+	type discrete[2] {  "true"  "false" };
+	property "position = (237, 231)" ;
+}
+variable  "light-on" { //2 values
+	type discrete[2] {  "true"  "false" };
+	property "position = (111, 225)" ;
+}
+variable  "hear-bark" { //2 values
+	type discrete[2] {  "true"  "false" };
+	property "observed true" ;
+	property "position = (236, 330)" ;
+}
+probability (  "family-out" ) { //1 variable(s) and 2 values
+	table 
+		0.15	// p(true | evidence )
+		0.85; 	// p(false | evidence );
+}
+probability (  "bowl-problem" ) { //1 variable(s) and 2 values
+	table 
+		0.01	// p(true | evidence )
+		0.99; 	// p(false | evidence );
+}
+probability (  "dog-out"  "family-out"  "bowl-problem" ) { //3 variable(s) and 8 values
+	table 
+		 0.99 0.9 0.97 0.3 0.01 0.1 0.03 0.7;
+}
+probability (  "light-on"  "family-out" ) { //2 variable(s) and 4 values
+	table 
+		 0.6 0.05 0.4 0.95;
+}
+probability (  "hear-bark"  "dog-out" ) { //2 variable(s) and 4 values
+	table 
+		 0.7 0.3 0.01 0.99;
+}

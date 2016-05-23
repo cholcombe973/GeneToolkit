@@ -1,0 +1,16 @@
+package digitalLabManagementSystem;
+
+/*
+   Handles the details of loading, unloading and module interdependencies
+   This class will house the Plugin registry
+*/
+
+public class ModuleEngine {
+  private ReferenceEngine re;
+
+  public ModuleEngine(ReferenceEngine re) {
+    this.re = re;
+    re.putReference("ModuleEngine",this);
+  }
+
+}

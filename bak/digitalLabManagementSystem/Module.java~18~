@@ -1,0 +1,76 @@
+package digitalLabManagementSystem;
+
+public abstract class Module {
+  private long pid;
+  private String author;
+  private String description;
+  private String name;
+
+  public Module() {
+
+  }
+  /**
+   * Method called on startup.  Place any code here that needs to be initalized.
+   */
+  public abstract void initModule();
+  /**
+   * Method called on shutdown.  Close any open resources here before shutdown.
+   */
+  public abstract void cleanupModule();
+  /**
+   * Sets the name of the module.
+   * @param name String The name of the module.
+   */
+  public void setName(String name){
+    this.name = name;
+  }
+  /**
+   * Returns the name of the module.
+   * @return String The name of the module.
+   */
+  public String getName(){
+    return name;
+  }
+  /**
+   * Sets the process id of the module.
+   * @param pid long The Process ID obtained by making a call to getPID() from the ModuleManager.
+   */
+  public void setModulePID(long pid){
+    this.pid = pid;
+  }
+  /**
+   * Returns the registered Process ID.
+   * @return long The Process ID.
+   */
+  public long getModulePID(){
+    return pid;
+  }
+  /**
+   * Sets the author of the module.
+   * @param author String The author of the module.
+   */
+  public void setAuthor(String author){
+    this.author = author;
+  }
+  /**
+   * Returns the author of the module.
+   * @return String The author of the module.
+   */
+  public String getAuthor(){
+    return author;
+  }
+  /**
+   * The description of the module.
+   * @param description String A description of the module's capabilities.
+   */
+  public void setDescription(String description){
+    this.description = description;
+  }
+  /**
+   * Returns the description of the module.
+   * @return String A description of what the module can do.
+   */
+  public String getDescription(){
+    return description;
+  }
+}

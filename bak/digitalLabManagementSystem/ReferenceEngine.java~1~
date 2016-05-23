@@ -1,0 +1,11 @@
+package digitalLabManagementSystem;
+
+/**
+   Handles all details with References
+ */
+
+public class ReferenceEngine {
+  public ReferenceEngine() {
+  }
+
+}

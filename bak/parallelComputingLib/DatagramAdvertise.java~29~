@@ -1,0 +1,102 @@
+package parallelComputingLib;
+
+import java.nio.channels.DatagramChannel;
+import java.nio.*;
+import java.net.*;
+import java.util.*;
+import java.io.*;
+/**
+ * <p>Title: DatagramAdvertise</p>
+ *
+ * <p>Description: DatagramAdvertise is used by any class that wishes to advertise it's presence over a network.
+ *  It sends out UDP packets at 5 second intervals announcing that it's at a certain ip address.  Custom
+ *  data can be used by calling setData and providing a String or a long to be advertised.
+ * </p>
+ *
+ * <p>Copyright: Copyright (c) 2004</p>
+ * @author Chris Holcombe
+ * @version 1.0
+ */
+
+public class DatagramAdvertise extends Thread {
+  private DatagramChannel c;
+  private String data;
+  private boolean server;
+  private Timer timer;
+  private int port;
+
+  /**
+   * Creates a new DatagramAdvertise instance with a channel to advertise with, whether or not it's a server and the port
+   * to send data out on.
+   * @param dc DatagramChannel  An already opened channel to advertise with.
+   * @param server boolean Server's advertise 3 and worker's advertise 1.
+   * @param port int The port to send broadcast's out on.
+   */
+  public DatagramAdvertise(DatagramChannel dc, boolean server, int port){
+    this.c = dc;
+    this.server = server;
+    this.port = port;
+  }
+  /**
+   * This method sets the advertisement data to a string to be broadcasted.
+   * @param data String The string of data to broadcast.
+   */
+  public void setData(String data){
+    this.data = data;
+  }
+  /**
+   * Supply a long to this method and it will be broadcasted out over the local network.
+   * @param data long Any long to be used as the data being advertised.
+   */
+  public void setData(long data){
+    this.data = String.valueOf(data);
+  }
+  /**
+   * This is the main method of the class where all advertisements are run.
+   */
+  public void run(){
+    try{
+      String inet = InetAddress.getLocalHost().toString();
+      final String address = MakeInetString(inet);
+      if(c.isOpen()){
+        //send advertisments on 15sec intervals
+        timer = new Timer();
+        timer.scheduleAtFixedRate(new TimerTask(){
+          ByteBuffer src = ByteBuffer.allocateDirect(1024);
+          public void run(){
+            try{
+              src.clear();
+              if(server)
+                src.put((byte)'3');
+              else
+                src.put((byte)'1');
+              src.put(data.getBytes());
+              src.flip();
+              //Setup buffer for outgoing advertisement
+              SocketAddress target = new InetSocketAddress(InetAddress.getByName(address),port);
+              //Fire off advertisement
+              c.send(src,target);
+            }catch(IOException e){System.out.println("IOException in DatagramAdvertise run(): " + e);}
+          }
+        },5000,5000);
+      }else{
+        System.out.println("Channel not yet opened");
+        return;
+      }
+    }catch(UnknownHostException e ){System.out.println("UnknownHostException in DatagramAdvertise run(): " + e);}
+  }
+  /**
+   * Call this method when you would like to shut down the advertising by this class.
+   */
+  public void stopAdvertise(){
+    timer.cancel();
+  }
+  /**
+   * This method is used by the class to make a local ip address that will UDP to even on the local subnet.
+   * @param inet String The local ip address.
+   * @return String Returns the ip address with .255 concatinated onto the end.
+   */
+  private String MakeInetString(String inet){
+   return inet.substring(inet.indexOf("/")+1,inet.length()-(inet.length()- inet.lastIndexOf(".") - 1)).concat("255");
+ }
+}

@@ -1,0 +1,144 @@
+
+package digitalLabManagementSystem;
+
+import java.io.*;
+import java.net.*;
+import java.nio.*;
+import java.nio.channels.*;
+
+/**
+ *
+ * <p>Title: NetworkModule</p>
+ * <p>Description: Provides simple network support for classes needing such.  This class is implemented
+ * as a client.  So, classes must be connecting to a server resource.  After obtaining a reference
+ * to the module, classes can create a new connection by calling openConnection and providing a
+ * network address of the resource to connect to.
+ * </p>
+ * <p>Copyright: Copyright (c) 2004</p>
+ * @author Chris Holcombe
+ * @version 1.0
+ */
+public class NetworkModule extends Module implements INetwork {
+  private SocketChannel sc;
+  private ReferenceEngine re;
+  private ModuleManager ref;
+
+
+  public NetworkModule(ReferenceEngine re) {
+    this.re = re;
+  }
+  /**
+   *
+   */
+  public void initModule() {
+    ref = (ModuleManager) re.getReference("ModuleManager");
+    setModulePID(ref.getPID());
+    setAuthor("Chris Holcombe");
+    setDescription("Handles network operations");
+    setName("Network Module");
+    setVersion("1.0");
+    ref.registerModule("network", this);
+  }
+  /**
+   *
+   */
+  public void cleanupModule() {
+    if (ref != null) {
+      ref.unregisterModule(".net");
+    }
+  }
+  /**
+   * Opens a connection up to a remote computer.
+   * @param remote InetSocketAddress
+   */
+  public void openConnection(InetSocketAddress remote) {
+    try {
+      sc = SocketChannel.open();
+      sc.connect(remote);
+    }
+    catch (IOException e) { /*Log exception*/}
+  }
+  /**
+   * Closes the connection to the remote host.
+   */
+  public void closeConnection() {
+    if (sc != null) {
+      try {
+        sc.close();
+      }
+      catch (IOException e) { /*Log exception*/}
+    }
+  }
+
+  /**
+   * Reads a sequence of bytes from this channel into the given buffer.
+   * @param data ByteBuffer
+   */
+  public void readData(ByteBuffer data) {
+    try {
+      sc.read(data);
+    }
+    catch (IOException e) { /*Log exception*/}
+  }
+  /**
+   *
+   * @param data ByteBuffer[]
+   */
+  public void readData(ByteBuffer[] data) {
+    try {
+      sc.read(data);
+    }
+    catch (IOException e) { /*Log exception*/}
+  }
+  /**
+   *
+   * @param data byte[]
+   */
+  public void readData(byte[] data) {
+    try {
+      ByteBuffer temp = ByteBuffer.allocate(data.length);
+      sc.read(temp);
+      temp.flip();
+      for (int i = 0; i < temp.limit(); i++) {
+        data[i] = temp.get(i);
+      }
+    }
+    catch (IOException e) { /*Log exception*/}
+  }
+  /**
+   *
+   * @param data ByteBuffer
+   */
+  public void writeData(ByteBuffer data) {
+    try {
+      sc.write(data);
+    }
+    catch (IOException e) { /*Log exception*/}
+  }
+  /**
+   *
+   * @param data ByteBuffer[]
+   */
+  public void writeData(ByteBuffer[] data) {
+    try {
+      sc.write(data);
+    }
+    catch (IOException e) { /*Log exception*/}
+  }
+  /**
+   *
+   * @param data byte[]
+   */
+  public void writeData(byte[] data) {
+    try {
+      ByteBuffer temp = ByteBuffer.allocate(data.length);
+      for (int i = 0; i < temp.limit(); i++) {
+        temp.put(data[i]);
+      }
+      temp.flip();
+      sc.write(temp);
+    }
+    catch (IOException e) { /*Log Exception*/}
+  }
+
+}

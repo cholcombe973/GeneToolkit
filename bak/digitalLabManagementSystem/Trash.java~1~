@@ -1,0 +1,52 @@
+package digitalLabManagementSystem;
+
+import java.util.*;
+
+public class Trash {
+  private String text = "MAL TIRRUEZF CR MAL RKZYIOL EX MAL OIY UAE RICF MAL ACWALRM DYEUPLFWL CR ME DYEU MAIM UL IZL RKZZEKYFLF GH OHRMLZH";
+  private Hashtable ht = new Hashtable(26);
+  private char[] chars = {'M','A','L','T','I','R','R','U','E','Z','F','C','R','M','A','L','R','K','Z','Y','I','O','L','E','X',
+      'M','A','L','O','I','Y','U','A','E','R','I','C','F','M','A','L','A','C','W','A','L','R','M','D','Y','E','U',
+      'P','L','F','W','L','C','R','M','E','D','Y','E','U','M','A','I','M','U','L','I','Z','L','R','K','Z','Z','E','K','Y',
+      'F','L','F','G','H','O','H','R','M','L','Z','H'};
+
+  public Trash() {
+  }
+  public void figureItOut(){
+    ht.put("A","1");
+    ht.put("B","2");
+    ht.put("C","3");
+    ht.put("D","4");
+    ht.put("E","5");
+    ht.put("F","6");
+    ht.put("G","7");
+    ht.put("H","8");
+    ht.put("I","9");
+    ht.put("J","10");
+    ht.put("K","11");
+    ht.put("L","12");
+    ht.put("M","13");
+    ht.put("N","14");
+    ht.put("O","15");
+    ht.put("P","16");
+    ht.put("Q","17");
+    ht.put("R","18");
+    ht.put("S","19");
+    ht.put("T","20");
+    ht.put("U","21");
+    ht.put("V","22");
+    ht.put("W","23");
+    ht.put("X","24");
+    ht.put("Y","25");
+    ht.put("Z","26");
+
+    for(int i=0;i<chars.length;i++){
+      String key = Character.toString(chars[i]);
+      System.out.print(ht.get(key));
+    }
+  }
+  public static void main(String[] args){
+    Trash t = new Trash();
+    t.figureItOut();
+  }
+}

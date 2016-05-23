@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<Module>
+	<Name>AlarmModule</Name>
+	<Author>Chris Holcombe</Author>
+	<Description>Creates a new message window at specified times.</Description>
+	<Version>1.0</Version>
+	<Library>AlarmModule.jar</Library>
+	<Class>AlarmModule</Class>
+	<Package>alarmmodule</Package>
+	<Handle>alarm</Handle>
+</Module>

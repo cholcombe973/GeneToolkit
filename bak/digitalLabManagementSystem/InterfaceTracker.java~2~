@@ -1,0 +1,54 @@
+package digitalLabManagementSystem;
+
+/**
+ *
+ * <p>Title: Interface</p>
+ *
+ * <p>Description: The purpose of this class is to keep track of dynamically loaded interfaces.
+ * It's job is to hold all the information that is efficiently possible to load.  As powerful as this class
+ * is, it will be transparent to users of the architecture.  All plugins or modules will still be
+ * routed through the ModuleManager.
+ * </p>
+ *
+ * <p>Copyright: Copyright (c) 2004</p>
+ *
+ * <p>Company: </p>
+ *
+ * @author not attributable
+ * @version 1.0
+ */
+import java.lang.reflect.*;
+import java.util.Hashtable;
+
+public class InterfaceTracker {
+  //we need to map interfaces herr
+  //so and interface will have a property file -> classname
+  private Hashtable ht = new Hashtable();
+
+  public InterfaceTracker() {
+
+  }
+  /**
+   * Returns the String of the class the interface is mapped to.
+   * @param interfaceName String
+   * @return String
+   */
+  public String requestInterface(String interfaceName){
+    return "";
+  }
+  /**
+   *
+   * @param classPackage Package
+   * @param interfaceName String
+   * @param className String
+   * @param declaredMethods Method[]
+   */
+  public void storeInterfaceData(String interfaceName,String className,Method[] declaredMethods,Package classPackage){
+    ht.put(interfaceName,new Object[]{className,declaredMethods,classPackage});
+  }
+
+
+
+
+
+}

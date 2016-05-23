@@ -1,0 +1,22 @@
+package digitalLabManagementSystem;
+
+/*
+   This interface should create the general contract for filesystems
+   All filesystems should be regarded in the same way by the environment
+   The environment will ask classes that implement this interface to deal with
+   some form of input or output without the environment needing to know
+   exactly what it is.
+   Example FileSystems: XML,Binary,Text,Database
+ */
+
+public interface FileSystemOutput {
+  //writing portion
+  public void writeBoolean(boolean b);
+  public void writeBytes(String s);
+  public void writeChar(char c);
+  public void writeDouble(double d);
+  public void writeFloat(float f);
+  public void writeInt(int i);
+  public void writeLong(long l);
+  public void writeShort(short s);
+}

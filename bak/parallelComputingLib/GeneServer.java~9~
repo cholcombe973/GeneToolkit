@@ -1,0 +1,86 @@
+package parallelComputingLib;
+
+import java.io.IOException;
+import java.nio.*;
+import java.nio.channels.*;
+
+public class GeneServer extends Server{
+
+  public static void main(String[] args){
+    GeneServer s = new GeneServer();
+    s.setupStorageFile();
+    s.setupServer();
+    s.setupAdvertising();
+  }
+  protected ByteBuffer getWorkerData(){
+    try {
+      b.clear();
+      b.putLong(rowPointer);
+      int rowsToSend = (b.capacity()-24)/(8*doublesPerRow);
+      rowPointer+=rowsToSend;
+      b.putLong(rowsToSend);
+      b.putLong(doublesPerRow);
+      //subtract 24 for first 3 protocol numbers, then divide by 8 bytes per number * numbers per row
+
+      for(int j=0;j<rowsToSend;j++){
+        String line = dataReader.readLine();
+        if(line!=null){
+          String[] valueArray = line.split(" ");
+          int size = valueArray.length;
+          for(int i=0;i<size;i++)
+            b.putDouble(Double.parseDouble(valueArray[i]));
+        }
+        else{
+          System.out.println("Total Time: " + (System.currentTimeMillis() - start));
+          shutdown();
+        }
+      }
+      b.flip();
+      return b;
+    }catch (IOException ex) {System.out.println("IOException in getWorkerData(): " + ex);}
+    return null;
+  }
+  protected void handleData(ByteBuffer data){
+    //process results from workers
+    // [0 1 2 3 4 5 6 7 | 8 9 10 11 12 13 14 15 | Data ... ]
+    // [startingRow     | numbersPerRow         | Data ... ]
+
+    long startingRow = data.getLong();
+    int size = (data.limit()-8)/8;
+    long rowID = startingRow;
+    for(int i=0;i<size;i++){
+      cfs.store(data.getDouble(),rowID);
+      rowID++;
+    }
+  }
+  protected void identifyUDPData(ByteBuffer msg, String ip){
+    int n = Character.getNumericValue((char)msg.get(0));
+
+    switch(n){
+      case 0:
+        removeWorker(ip);
+      case 1:
+        //advertisement
+        ComputerProperties cp = new ComputerProperties();
+        cp.computerID = String.valueOf(msg.getLong(1));
+        cp.computerIP = ip;
+        checkForDuplicateWorker(cp);
+        stopWorkerAdvertising(ip);
+        break;
+    }
+  }
+  protected void identifyTCPDataReadEvent(ByteBuffer msg, int read, SocketChannel callback){
+    //data was read from a worker. Pull apart results and send new data
+    handleData(msg);
+    try {
+      callback.write(getWorkerData());
+    }catch (IOException ex) {System.out.println("IOException in identifyTCPDataReadEvent(): " + ex);}
+  }
+  protected void identifyTCPDataAcceptEvent(SocketChannel callback){
+    //new worker was identified.  Send them starting data
+    try {
+      start = System.currentTimeMillis();
+      callback.write(getWorkerData());
+    }catch (IOException ex) {System.out.println("IOException in identifyTCPDataAcceptEvent(): " + ex);}
+  }
+}

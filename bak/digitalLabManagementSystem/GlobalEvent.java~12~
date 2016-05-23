@@ -1,0 +1,36 @@
+package digitalLabManagementSystem;
+
+/**
+   Events to throw around the place
+**/
+
+import javax.swing.JMenu;
+
+public class GlobalEvent {
+  public static final long exampleModifier  =  0x0001; //potential modifiers
+  public static final long windowClosing    =  0x0002; //Window is closing
+  public static final long windowOpening    =  0x0004; //Window is opening
+  public static final long windowResizing   =  0x0008; //Window is resizing
+  public static final long windowModeChange =  0x0016; //Window is changing from minimized to maximized
+  public static final long removeMenu       =  0x0032; //menu was removed at runtime
+  public static final long addMenu          =  0x0064; //menu was added at runtime
+
+  //references
+  private JMenu menu;
+
+  private long modifiers;
+
+  public GlobalEvent(long modifiers) {
+    this.modifiers = modifiers;
+  }
+  public long getModifiers(){
+    return modifiers;
+  }
+  //holds reference to which menu needs to be removed
+  public JMenu getMenu(){
+    return menu;
+  }
+  public void setMenu(JMenu menu){
+    this.menu = menu;
+  }
+}

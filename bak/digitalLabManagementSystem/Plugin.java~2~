@@ -1,0 +1,8 @@
+package digitalLabManagementSystem;
+
+public abstract class Plugin {
+  public Plugin() {
+  }
+  public abstract void startup();
+  public abstract void shutdown();
+}

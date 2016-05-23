@@ -1,0 +1,157 @@
+package parallelComputingLib;
+
+import java.nio.ByteBuffer;
+import java.nio.channels.*;
+/**
+ * <p>Title: NetworkEvent</p>
+ *
+ * <p>Description: The NetworkEvent class is used by TCPListen or UDPListen to store
+ * information about any given network event.  Then the NetworkEvent object is passed back to all
+ * listeners.  Classes that create NetworkEvent's will supply an id of the message for which they are creating
+ * the network event for.
+ * <br>This class works in generally the same way as the awt event system that Sun has created.
+ * <br>Example: A server has accepted a new connection.  It will create a new NetworkEvent with the acceptEvent id
+ * and pass it to all listeners informing them a new network connection was accepted and possibly a channel to write
+ * back to the client with.  Also, ByteBuffer's returned by this class are already flipped and ready for reading.
+ * </p>
+ *
+ * <p>Copyright: Copyright (c) 2004</p>
+ * @author Chris Holcombe
+ * @version 1.0
+ */
+
+public class NetworkEvent {
+  private ByteBuffer data;                           //data from the event
+  private String ip;                                 //ip for UDP events
+  private int read;                                  //size of TCP read
+  private SocketChannel channel;                     //channel of TCP event
+  public final static int acceptEvent      = 1 << 0; //new client connection accepted
+  public final static int readEvent        = 1 << 2; //client data read
+  public final static int tcpEvent         = 1 << 3; //event is tcp related
+  public final static int udpEvent         = 1 << 4; //event is udp related
+
+  private int flags = 0;
+
+  /**
+   * Creates a new NetworkEvent with an event message, and a channel for listeners to use.
+   * @param message int The message identifier.
+   * @param channel SocketChannel The SocketChannel for listeners to use for callback's
+   */
+  public NetworkEvent(int message, SocketChannel channel){
+    flags |= message;
+    this.channel = channel;
+  }
+  /**
+   * Creates a new NetworkEvent with data to be read and an event message.
+   * @param data ByteBuffer The data that was captured and ready for reading.
+   * @param message int The message identifier.
+   */
+  public NetworkEvent(ByteBuffer data, int message){
+    this.data = data;
+    flags |= message;
+  }
+  /**
+   * Creates a new NetworkEvent with an event message, data and the ip of the computer it was sent from.
+   * @param data ByteBuffer The data that was captured and ready for reading.
+   * @param message int The message identifier.
+   * @param ip String The string of the ip address from where the packet orginated.
+   */
+  public NetworkEvent(ByteBuffer data, int message, String ip){
+    this.data = data;
+    flags |= message;
+    this.ip = ip;
+  }
+  /**
+   * Creates a new NetworkEvent with data a message event and the read size of the event.
+   * @param data ByteBuffer The data that was captured and ready for reading.
+   * @param message int The message identifier.
+   * @param read int The size of the read that occured.  Useful for debugging.
+   */
+  public NetworkEvent(ByteBuffer data, int message, int read){
+    this.data = data;
+    flags |= message;
+    this.read = read;
+  }
+  /**
+   * Creates a new NetworkEvent with data a message and a channel to write back to.
+   * @param data ByteBuffer The data that was captured and ready for reading.
+   * @param message int The message identifier.
+   * @param channel SocketChannel The channel for listener's to write data back with.
+   */
+  public NetworkEvent(ByteBuffer data, int message, SocketChannel channel){
+    this.data = data;
+    flags |= message;
+    this.channel = channel;
+  }
+  public NetworkEvent(ByteBuffer data, int message, int read, SocketChannel channel){
+    this.data = data;
+    flags |= message;
+    this.read = read;
+    this.channel = channel;
+  }
+  /**
+   * Called by listeners to retrieve the data that was read in the network event.
+   * @return ByteBuffer The bytebuffer of data from the network event.
+   */
+  public ByteBuffer getData(){
+    return data;
+  }
+  /**
+   * Called by listeners to retrieve the size of the read event that occured.
+   * @return int  The size of the read that occured.
+   */
+  public int getReadSize(){
+    return read;
+  }
+  /**
+   * Called by listeners with UDP events are being processed to identify where the packet came from.
+   * @return String The ip of the computer that sent this packet.
+   */
+  public String getIP(){
+    return ip;
+  }
+  /**
+   * Called by listeners to retrieve the channel with which to write back to client's or server's with.
+   * @return SocketChannel The channel to callback to with data.
+   */
+  public SocketChannel getChannel(){
+    return channel;
+  }
+  /**
+   * Called by listeners to identify the event.
+   * @return boolean Returns true if this is a TCP event, false otherwise.
+   */
+  public boolean isTCPEvent(){
+    return (flags & tcpEvent) !=0;
+  }
+  /**
+   * Called by listeners to identify the event.
+   * @return boolean Returns true if this is a UDP event, false otherwise.
+   */
+  public boolean isUDPEvent(){
+    return (flags & udpEvent) !=0;
+  }
+  /**
+   * Called by listeners to identify the event.
+   * @return boolean Returns true if this is an Accept event, false otherwise.
+   */
+  public boolean isAcceptEvent(){
+    return (flags & acceptEvent) != 0;
+  }
+  /**
+   * Called by listeners to identify the event.
+   * @return boolean Returns true if this is an Accept event, false otherwise.
+   */
+  public boolean isReadEvent(){
+    return (flags & readEvent) != 0;
+  }
+  /**
+   * Called by listeners to get the modifier flags if needed.<br>
+   * isXXXEvent() is easier to use then this.  Flags are toggled and stored in a single int.  Therefore
+   * BitWise operations will need to be used to work with this method.
+   * @return int Returns the modifiers of this event.
+   */
+  public int getModifiers(){
+    return flags;
+  }
+}

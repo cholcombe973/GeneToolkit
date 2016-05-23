@@ -1,0 +1,9 @@
+package genetoolkit;
+
+public interface OutputModuleInterface {
+  public void display();
+  public void notifyCompleted();
+  public void initModule();
+  public void cleanupModule();
+
+}

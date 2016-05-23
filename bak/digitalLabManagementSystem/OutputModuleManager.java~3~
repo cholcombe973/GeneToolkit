@@ -1,0 +1,29 @@
+package digitalLabManagementSystem;
+
+public class OutputModuleManager {
+  public OutputModuleManager() {
+  }
+
+  public void registerCapability(){
+
+  }
+  public void unregisterCapability(){
+
+  }
+  private void incrementModuleCount(){
+
+  }
+  private void decrementModuleCount(){
+
+  }
+  public void setModuleAuthor(String author){
+
+  }
+  public void setModuleDescription(String desc){
+
+  }
+  public void requestModule(){
+
+  }
+
+}

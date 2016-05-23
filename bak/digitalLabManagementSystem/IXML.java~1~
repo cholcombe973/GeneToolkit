@@ -1,0 +1,12 @@
+package digitalLabManagementSystem;
+
+/*
+  Interface that XML plugins will need to conform to
+
+*/
+import java.io.*;
+
+public interface IXML {
+  public void setParseFile(File f);
+  public void parseFile();
+}

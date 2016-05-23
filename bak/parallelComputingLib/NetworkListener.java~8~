@@ -1,0 +1,20 @@
+package parallelComputingLib;
+
+/**
+ * <p>Title: NetworkListener</p>
+ *
+ * <p>Description:
+ *
+ * </p>
+ *
+ * <p>Copyright: Copyright (c) 2004</p>
+ * @author Chris Holcombe
+ * @version 1.0
+ */
+
+
+public interface NetworkListener {
+  public void addListener(NetworkListener listener);
+  public void removeListener(NetworkListener listener);
+  public void networkEventOccurred(NetworkEvent e);
+}

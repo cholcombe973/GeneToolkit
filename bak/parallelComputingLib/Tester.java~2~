@@ -1,0 +1,9 @@
+package parallelComputingLib;
+
+public class Tester extends Server{
+  public static void main(String[] args){
+    Tester t = new Tester();
+    t.setupAdvertising();
+    t.start();
+  }
+}

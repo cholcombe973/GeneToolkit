@@ -1,0 +1,37 @@
+package digitalLabManagementSystem;
+
+public abstract class Module {
+  private long pid;
+  private String author;
+  private String description;
+
+  public Module() {
+
+  }
+  public void initModule(){
+    //init what you need to get done
+  }
+  public void cleanupModule(){
+    //cleanup whatever resources need to be shutdown
+  }
+  public void setModulePID(long pid){
+    this.pid = pid;
+  }
+  public long getModulePID(){
+    return pid;
+  }
+  public void setAuthor(String author){
+    this.author = author;
+  }
+  public String getAuthor(){
+    return author;
+  }
+  public void setDescription(String description){
+    this.description = description;
+  }
+  public String getDescription(){
+    return description;
+  }
+
+
+}

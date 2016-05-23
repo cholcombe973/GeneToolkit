@@ -1,0 +1,14 @@
+package digitalLabManagementSystem;
+
+/*
+   This class should adapt action listeners to global listeners
+   The idea is that a module/plug-in shouldn't have to make it's
+   own custom ActionListener class but rather just listen for events
+   that pertain to it.  This class will be a go between, translating
+   ActionEvents to GlobalEvents
+*/
+public class ActionToGlobalAdapter {
+  public ActionToGlobalAdapter() {
+  }
+
+}

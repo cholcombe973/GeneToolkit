@@ -1,0 +1,21 @@
+package parallelComputingLib;
+
+/**
+ * <p>Title: NetworkListener</p>
+ *
+ * <p>Description: DatagramAdvertise is used by any class that wishes to advertise it's presence over a network.
+ *  It sends out UDP packets at 5 second intervals announcing that it's at a certain ip address.  Custom
+ *  data can be used by calling setData and providing a String or a long to be advertised.
+ * </p>
+ *
+ * <p>Copyright: Copyright (c) 2004</p>
+ * @author Chris Holcombe
+ * @version 1.0
+ */
+
+
+public interface NetworkListener {
+  public void addListener(NetworkListener listener);
+  public void removeListener(NetworkListener listener);
+  public void networkEventOccurred(NetworkEvent e);
+}

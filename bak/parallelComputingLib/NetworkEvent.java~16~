@@ -1,0 +1,70 @@
+package parallelComputingLib;
+
+import java.nio.ByteBuffer;
+import java.nio.channels.*;
+
+public class NetworkEvent {
+  private ByteBuffer data;                           //data from the event
+  private String ip;                                 //ip for UDP events
+  private int read;                                  //size of TCP read
+  private SocketChannel channel;                     //channel of TCP event
+  public final static int acceptEvent      = 1 << 0; //new client connection accepted
+  public final static int readEvent        = 1 << 2; //client data read
+  public final static int tcpEvent         = 1 << 3; //event is tcp related
+  public final static int udpEvent         = 1 << 4; //event is udp related
+
+  private int flags = 0;
+
+  public NetworkEvent(ByteBuffer data, int message){
+    this.data = data;
+    flags |= message;
+  }
+  public NetworkEvent(ByteBuffer data, int message, String ip){
+    this.data = data;
+    flags |= message;
+    this.ip = ip;
+  }
+  public NetworkEvent(ByteBuffer data, int message, int read){
+    this.data = data;
+    flags |= message;
+    this.read = read;
+  }
+  public NetworkEvent(ByteBuffer data, int message, SocketChannel channel){
+    this.data = data;
+    flags |= message;
+    this.channel = channel;
+  }
+  public NetworkEvent(ByteBuffer data, int message, int read, SocketChannel channel){
+    this.data = data;
+    flags |= message;
+    this.read = read;
+    this.channel = channel;
+  }
+  public ByteBuffer getData(){
+    return data;
+  }
+  public int getReadSize(){
+    return read;
+  }
+  public String getIP(){
+    return ip;
+  }
+  public SocketChannel getChannel(){
+    return channel;
+  }
+  public boolean isTCPEvent(){
+    return (flags & tcpEvent) !=0;
+  }
+  public boolean isUDPEvent(){
+    return (flags & udpEvent) !=0;
+  }
+  public boolean isAcceptEvent(){
+    return (flags & acceptEvent) != 0;
+  }
+  public boolean isReadEvent(){
+    return (flags & readEvent) != 0;
+  }
+  public int getModifiers(){
+    return flags;
+  }
+}

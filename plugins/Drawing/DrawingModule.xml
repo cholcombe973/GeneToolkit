@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<Module>
+	<Name>DrawingModule</Name>
+	<Author>Chris Holcombe</Author>
+	<Description>Handles drawing operations</Description>
+	<Version>1.0</Version>
+	<Library>DrawingModule.jar</Library>
+	<Class>DrawingModule</Class>
+	<Package>drawingmodule</Package>
+	<Handle>draw</Handle>
+</Module>

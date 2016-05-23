@@ -1,0 +1,21 @@
+package digitalLabManagementSystem;
+
+public class LogModule extends Module implements ILog{
+  public LogModule() {
+  }
+  public void logSevereMsg(String msg){
+
+  }
+  public void logConfigMsg(String msg){
+
+  }
+  public void logWarningMsg(String msg){
+
+  }
+  public void initModule(){
+
+  }
+  public void cleanupModule(){
+
+  }
+}

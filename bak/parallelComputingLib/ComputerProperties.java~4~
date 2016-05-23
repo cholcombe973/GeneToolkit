@@ -1,0 +1,22 @@
+package parallelComputingLib;
+
+/*
+  Stores some information about each worker for the server
+*/
+/**
+ * <p>Title: ComputerProperties</p>
+ *
+ * <p>Description: Stores some information about each worker for the server.
+ * This class makes tracking computers easier but attaching a unique number with each worker ip address.
+ * </p>
+ *
+ * <p>Copyright: Copyright (c) 2004</p>
+ * @author Chris Holcombe
+ * @version 1.0
+ */
+
+public class ComputerProperties {
+  public String computerID;
+  public String computerIP;
+  public boolean busy;
+}

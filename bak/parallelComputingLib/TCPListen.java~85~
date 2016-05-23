@@ -1,0 +1,212 @@
+package parallelComputingLib;
+
+import java.io.*;
+import java.net.*;
+import java.nio.*;
+import java.nio.channels.*;
+import java.util.*;
+/**
+ * <p>Title: TCPListen</p>
+ *
+ * <p>Description: This class allows multiple objects to listen for data with a single channel. Callback event model used.<br>
+ * To use this class implement TCPListener and override NetworkEventOccured(NetworkEvent e){} with custom code.<br>
+ * Then startup TCPListen and register your class to listen for events.<br>
+ * </p>
+ *
+ * <p>Copyright: Copyright (c) 2004</p>
+ * @author Chris Holcombe
+ * @version 1.0
+ */
+public class TCPListen extends Thread implements NetworkListener{
+  private SocketChannel channel;
+  private ServerSocketChannel sChannel;
+  private ArrayList listeners = new ArrayList();
+  private int port;
+  private String remoteHost;
+  private boolean server = false;
+  private Selector s;
+  /**
+   *
+   * @param port int
+   * @param remoteHost String
+   * @param server boolean
+   */
+  public TCPListen(int port, String remoteHost, boolean server) {
+    this.port = port;
+    this.remoteHost = remoteHost;
+    this.server = server;
+  }
+  /**
+   * Adds a new listener class that can receive network events fired off by this class.
+   * @param listener NetworkListener Any class that implements NetworkListener
+   */
+  public void addListener(NetworkListener listener){
+    listeners.add(listener);
+  }
+  /**
+   * Removes a listener class from receiving network events.
+   * @param listener NetworkListener Any class that implements NetworkListener
+   */
+  public void removeListener(NetworkListener listener){
+    listeners.remove(listener);
+  }
+  /**
+   * Implementation side effect. Does nothing.
+   * @param e NetworkEvent
+   */
+  public void networkEventOccurred(NetworkEvent e){}
+
+  /**
+   * This method takes care of sending network events to all registered listeners.
+   * @param e NetworkEvent The NetworkEvent that will be delievered to listeners.
+   */
+  private void fireNetworkEvent(NetworkEvent e){
+    int length = listeners.size();
+    for(int i=0;i<length;i++)
+      ((NetworkListener)listeners.get(i)).networkEventOccurred(e);
+  }
+  /**
+   * This is the main method of the class and all network IO is run here.<br>
+   * This thread will act as a server or as a client depending on the boolean it is given.
+   */
+  public void run(){
+    if(server){
+      ByteBuffer serverDst = ByteBuffer.allocateDirect(8192);
+      try{
+        Selector selector = Selector.open();
+        s = selector;
+        sChannel.register(selector,SelectionKey.OP_ACCEPT);
+
+        while(selector.isOpen()){
+          selector.select(0);
+          //Get set of ready objects
+          Iterator it = selector.selectedKeys().iterator();
+          //Look at each key in the set
+          int size = selector.selectedKeys().size();
+          for(int i=0;i<size;i++){
+            SelectionKey key = (SelectionKey) it.next();
+            if(key.isAcceptable()){
+              SocketChannel channel = sChannel.accept();
+              channel.configureBlocking(false);
+
+              //option 1 send data to client on the accept
+              //fire off a msg to listeners with a buffer that they can optionally fill to send back to the client
+              //send with modifier's describing the event
+              fireNetworkEvent(new NetworkEvent(NetworkEvent.tcpEvent|NetworkEvent.acceptEvent,channel));
+
+              channel.register(selector,SelectionKey.OP_READ);
+            }
+            if(key.isReadable()){
+              SocketChannel channel = (SocketChannel)key.channel();
+              serverDst.clear();
+              int read = channel.read(serverDst);
+              serverDst.flip();
+              //callback to listeners with data
+              //option 2 send data to client after a read
+              //fire off a msg to listeners with a buffer that they can optionally fill to send back to the client
+              //send with modifier's describing the event
+
+              ByteBuffer bufferCopy = ByteBuffer.allocate(serverDst.limit());
+              copyBuffer(serverDst, bufferCopy);
+
+              fireNetworkEvent(new NetworkEvent(bufferCopy,NetworkEvent.readEvent|NetworkEvent.tcpEvent,read,channel));
+            }
+            it.remove(); //Remove key it's been handled
+          }// end for loop
+        }//end while selector.isOpen
+      }catch(IOException e){System.out.println("IOException in TCPListen run(): " + e);}
+    }else{
+      try {
+        ByteBuffer clientDst = ByteBuffer.allocateDirect(8192);
+        Selector selector = Selector.open();
+        s = selector;
+        channel.register(selector, SelectionKey.OP_READ);
+
+        while (selector.isOpen()) {
+          selector.select(0);
+          //make sure the selector is still open for operations
+          //selector blocks indefinitly, could be closed before ready set of keys if found.
+          if(!selector.isOpen())
+            break;
+          //Get set of ready objects
+          Iterator it = selector.selectedKeys().iterator();
+          //Look at each key in the set
+          int size = selector.selectedKeys().size();
+          for(int i=0;i<size;i++){
+            SelectionKey key = (SelectionKey) it.next();
+            if (key.isReadable()) {
+              //read what is ready
+              //Get Channel
+              SocketChannel dChannel = (SocketChannel) key.channel();
+              clientDst.clear();
+              int read = dChannel.read(clientDst);
+              clientDst.flip(); //Make buffer readable
+
+              ByteBuffer bufferCopy = ByteBuffer.allocate(clientDst.limit());
+              copyBuffer(clientDst, bufferCopy);
+
+              //callback to listeners with data
+              NetworkEvent e = new NetworkEvent(bufferCopy, NetworkEvent.readEvent|NetworkEvent.tcpEvent,read, dChannel);
+              fireNetworkEvent(e);
+
+            } //End if readable
+            it.remove(); //Remove key it's been handled
+          } //End for loop
+        } //End while selector
+      }catch (IOException e) {
+        System.out.println("IOException in TCPListen run(): " + e);
+        e.printStackTrace(System.out);
+      }
+    }
+  }
+  /**
+   * This method sets up all the channels and sockets for TCP operations.<br>
+   * This method should be called first after creating any new TCPListen instances.
+   */
+  public void setup(){
+    try {
+      if(server){
+        sChannel = sChannel.open();
+        sChannel.configureBlocking(false);
+
+        ServerSocket socket = sChannel.socket();
+        InetSocketAddress isA = new InetSocketAddress(port);
+        socket.bind(isA);
+        return;
+      }
+      channel = channel.open();
+      channel.configureBlocking(false);
+      channel.connect(new InetSocketAddress(InetAddress.getByName(remoteHost),port));
+      channel.finishConnect();
+
+    }catch (IOException ex) {System.out.println("IOException in TCPListen setup(): " + ex);}
+  }
+  /**
+   * This method is used to make sure no references to buffers are being sent to listeners.<br>
+   * An example would be if a reference to the class buffer was sent to listeners and modified while be worked on by
+   * a listener could create a big problem.  So this method is called to insure that new memory is allocated for listeners
+   * to work with.
+   * @param src ByteBuffer The ByteBuffer to copy
+   * @param dst ByteBuffer The ByteBuffer to copy into.
+   */
+  private void copyBuffer(ByteBuffer src, ByteBuffer dst){
+    for(int i=0;i<src.limit();i++){
+      dst.put(src.get(i));
+    }
+    dst.flip();
+  }
+  /**
+   *
+   */
+  public void shutdown(){
+    try{
+      if(server){
+        s.close();
+        sChannel.close();
+        return;
+      }
+      s.close();
+      channel.close();
+    }catch(IOException e){System.out.println("IOException in TCPListen shutdown(): " + e);}
+  }
+}

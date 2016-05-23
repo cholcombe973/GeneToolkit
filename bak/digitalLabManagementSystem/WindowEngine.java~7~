@@ -1,0 +1,45 @@
+package digitalLabManagementSystem;
+
+/*
+    Handles the details with creating windows and showing them
+ */
+
+import java.util.*;
+
+public class WindowEngine implements GlobalListener{
+  private ReferenceEngine re;
+  public static final int PERSISTENCE_NEVER =       0x0001; //serialize the window never
+  public static final int PERSISTENCE_ONLY_OPENED = 0x0002; //serialize the window if it's open
+  public static final int PERSISTENCE_ALWAYS =      0x0004; //always serialize the window
+  private ArrayList listeners = new ArrayList();
+
+  public WindowEngine(ReferenceEngine re) {//I don't WindowEngines running around
+    this.re = re;
+    re.putReference("WindowEngine",this);
+  }
+  public WindowEngine getDefault(){
+    if(re.getReference("WindowEngine")!=null){
+      return (WindowEngine)re.getReference("WindowEngine");
+    }else{//whoops
+      return null;
+    }
+  }
+  public GUI getMainWindow(){
+    return (GUI)re.getReference("GUI");
+  }
+  public void registerGlobalListener(GlobalListener l){
+    listeners.add(l);
+  }
+  public void unregisterGlobalListener(GlobalListener l){
+    listeners.remove(l);
+  }
+  public void globalActionPerformed(GlobalEvent e){
+
+  }
+  private void fireGlobalActionEvent(GlobalEvent e){
+    int size = listeners.size();
+    for(int i=0;i<size;i++){
+      ((GlobalListener)listeners.get(i)).globalActionPerformed(e);
+    }
+  }
+}

@@ -1,0 +1,115 @@
+Apr 16, 2005 7:42:51 PM logmodule.LogModule logConfigMsg
+CONFIG: 
+
+Apr 16, 2005 7:42:51 PM logmodule.LogModule logConfigMsg
+CONFIG: Handlers length: 11
+Apr 16, 2005 7:42:51 PM logmodule.LogModule logConfigMsg
+CONFIG: 
+
+Apr 16, 2005 7:42:51 PM logmodule.LogModule logConfigMsg
+CONFIG: Module Info: 
+ModuleKey: .xml 
+ModuleID: -1218469945012614111
+ModuleName: XML Module
+ModuleDescription: This module handles XML parsing
+ModuleAuthor: Chris Holcombe
+Apr 16, 2005 7:42:51 PM logmodule.LogModule logConfigMsg
+CONFIG: 
+
+Apr 16, 2005 7:42:51 PM logmodule.LogModule logConfigMsg
+CONFIG: Module Info: 
+ModuleKey: Bayesian 
+ModuleID: -1672288514522764207
+ModuleName: BayesianModule
+ModuleDescription: BayesianModule supports creating Bayesian networks
+ModuleAuthor: Chris Holcombe
+Apr 16, 2005 7:42:51 PM logmodule.LogModule logConfigMsg
+CONFIG: 
+
+Apr 16, 2005 7:42:51 PM logmodule.LogModule logConfigMsg
+CONFIG: Module Info: 
+ModuleKey: CHashTable 
+ModuleID: -5867576909411533492
+ModuleName: CHashtable
+ModuleDescription: CHashtable is a hashtable with array support.
+ModuleAuthor: Chris Holcombe
+Apr 16, 2005 7:42:51 PM logmodule.LogModule logConfigMsg
+CONFIG: 
+
+Apr 16, 2005 7:42:51 PM logmodule.LogModule logConfigMsg
+CONFIG: Module Info: 
+ModuleKey: draw 
+ModuleID: -1953327195531871526
+ModuleName: DrawingModule
+ModuleDescription: Handles drawing operations
+ModuleAuthor: Chris Holcombe
+Apr 16, 2005 7:42:51 PM logmodule.LogModule logConfigMsg
+CONFIG: 
+
+Apr 16, 2005 7:42:51 PM logmodule.LogModule logConfigMsg
+CONFIG: Module Info: 
+ModuleKey: database 
+ModuleID: -5140161825942504043
+ModuleName: LogModule
+ModuleDescription: Handles logging operations
+ModuleAuthor: Chris Holcombe
+Apr 16, 2005 7:42:51 PM logmodule.LogModule logConfigMsg
+CONFIG: 
+
+Apr 16, 2005 7:42:51 PM logmodule.LogModule logConfigMsg
+CONFIG: Module Info: 
+ModuleKey: CFS 
+ModuleID: -6267360234018316262
+ModuleName: CFSModule
+ModuleDescription: Instantiates the CFS Filesystem
+ModuleAuthor: Chris Holcombe
+Apr 16, 2005 7:42:51 PM logmodule.LogModule logConfigMsg
+CONFIG: 
+
+Apr 16, 2005 7:42:51 PM logmodule.LogModule logConfigMsg
+CONFIG: Module Info: 
+ModuleKey: log 
+ModuleID: 3323286176108891853
+ModuleName: LogModule
+ModuleDescription: Handles logging operations
+ModuleAuthor: Chris Holcombe
+Apr 16, 2005 7:42:51 PM logmodule.LogModule logConfigMsg
+CONFIG: 
+
+Apr 16, 2005 7:42:51 PM logmodule.LogModule logConfigMsg
+CONFIG: Module Info: 
+ModuleKey: network 
+ModuleID: -4887621912221500386
+ModuleName: Network Module
+ModuleDescription: Handles network operations
+ModuleAuthor: Chris Holcombe
+Apr 16, 2005 7:42:51 PM logmodule.LogModule logConfigMsg
+CONFIG: 
+
+Apr 16, 2005 7:42:51 PM logmodule.LogModule logConfigMsg
+CONFIG: Module Info: 
+ModuleKey: alarm 
+ModuleID: 4954706778581817662
+ModuleName: AlarmModule
+ModuleDescription: AlarmModule supports creating of alarms for anything.
+ModuleAuthor: Chris Holcombe
+Apr 16, 2005 7:42:51 PM logmodule.LogModule logConfigMsg
+CONFIG: 
+
+Apr 16, 2005 7:42:51 PM logmodule.LogModule logConfigMsg
+CONFIG: Module Info: 
+ModuleKey: EnvProp 
+ModuleID: 6613525937181068999
+ModuleName: EnvironmentPropertiesModule
+ModuleDescription: Instantiates the EnvironmentPropertiesModule
+ModuleAuthor: Chris Holcombe
+Apr 16, 2005 7:42:51 PM logmodule.LogModule logConfigMsg
+CONFIG: 
+
+Apr 16, 2005 7:42:51 PM logmodule.LogModule logConfigMsg
+CONFIG: Module Info: 
+ModuleKey: JavaBayes 
+ModuleID: 8141177567240349318
+ModuleName: JavaBayesModule
+ModuleDescription: Instantiates the JavaBayes program
+ModuleAuthor: Chris Holcombe

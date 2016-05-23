@@ -1,0 +1,14 @@
+package parallelComputingLib;
+
+/*
+  Plugs into the digitalLabManagement framework
+  Provides support for mulitple computers to work on a problem.
+  Work is assumed to be split down the data and not functionally split.
+
+*/
+
+public class Parallel {
+  public Parallel() {
+  }
+
+}

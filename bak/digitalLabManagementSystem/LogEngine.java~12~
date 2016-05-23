@@ -1,0 +1,57 @@
+package digitalLabManagementSystem;
+
+/**
+   Handles all details with logging
+   This Engine should be started 2nd
+ */
+
+import java.util.logging.*;
+import java.io.*;
+
+public class LogEngine implements GlobalListener{
+  private Logger log;
+  private FileHandler fileHandler;
+  private FastArrayList listeners = new FastArrayList();
+  private ReferenceEngine re;
+
+  public LogEngine(ReferenceEngine re) {
+    this.re = re;
+    re.putReference("LogEngine",this);
+    setupLogger();
+  }
+  private void setupLogger(){
+    log = Logger.getLogger("digitalLab.Logger");
+    try {
+      fileHandler = new FileHandler();
+    }catch (SecurityException e) {System.out.println("SecurityException in setupLogger: " +e);}
+    catch (IOException e) {System.out.println("IOException in setupLogger: " + e);}
+    log.addHandler(fileHandler);
+  }
+  public void logSevereError(String msg){
+    log.log(Level.SEVERE,msg);
+  }
+  public void logConfigMsg(String msg){
+    log.log(Level.CONFIG,msg);
+  }
+  public void logWarningMsg(String msg){
+    log.log(Level.WARNING,msg);
+  }
+  public void registerGlobalListener(GlobalListener g){
+    listeners.add(g);
+  }
+  public void unregisterGlobalListener(GlobalListener g){
+    listeners.remove(g);
+  }
+  public void globalActionPerformed(GlobalEvent e){
+    System.out.println("GlobalAction caught: " + e.getModifiers());
+
+  }
+  private void fireGlobalAction(){
+    //create a global event and fire it to all listeners
+    int size = listeners.size();
+    GlobalEvent e = new GlobalEvent(GlobalEvent.exampleModifier);
+    for(int i=0;i<size;i++){
+      ((GlobalListener)listeners.get(i)).globalActionPerformed(e);
+    }
+  }
+}

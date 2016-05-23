@@ -1,0 +1,6 @@
+package digitalLabManagementSystem;
+
+public interface IDraw {
+
+
+}

@@ -1,0 +1,36 @@
+package digitalLabManagementSystem;
+
+/*
+   This class should adapt action listeners to global listeners
+   The idea is that a module/plug-in shouldn't have to make it's
+   own custom ActionListener class but rather just listen for events
+   that pertain to it.  This class will be a go between, translating
+   ActionEvents to GlobalEvents
+*/
+import java.awt.event.*;
+
+public class ActionToGlobalAdapter implements ActionListener,GlobalListener{
+  public ActionToGlobalAdapter() {
+  }
+
+  public void actionPerformed(ActionEvent e){
+    //create a globalEvent with the same mods and fire it off
+
+  }
+  public void globalActionPerformed(GlobalEvent e){
+    //nothing to do
+  }
+  public void registerGlobalListener(GlobalListener g){
+    //nothing to do
+  }
+  public void unregisterGlobalListener(GlobalListener g){
+    //nothing to do
+  }
+  private void fireGlobalAction(GlobalEvent e){
+    //create a global event and fire it to all listeners
+
+//    int size = listeners.size();
+//    for(int i=0;i<size;i++)
+//      ((GlobalListener)listeners.get(i)).globalActionPerformed(e);
+  }
+}

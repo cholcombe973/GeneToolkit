@@ -1,0 +1,6 @@
+package parallelComputingLib;
+
+public class ICFS {
+  public ICFS() {
+  }
+}

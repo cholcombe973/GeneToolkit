@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<Module>
+	<Name>CHashtable</Name>
+	<Author>Chris Holcombe</Author>
+	<Description>CHashtable is a hashtable with array support.</Description>
+	<Version>1.0</Version>
+	<Library>CHashtableModule.jar</Library>
+	<Class>CHashtableModule</Class>
+	<Package>chashtablemodule</Package>
+	<Handle>log</Handle>
+</Module>

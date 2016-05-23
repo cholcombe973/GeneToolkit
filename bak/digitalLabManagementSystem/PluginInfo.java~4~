@@ -1,0 +1,105 @@
+package digitalLabManagementSystem;
+
+import java.awt.*;
+import javax.swing.*;
+
+/**
+ * <p>Title: PluginInfo</p>
+ *
+ * <p>Description: A simple frame to display the relavent details about a plug in</p>
+ *
+ * <p>Copyright: Copyright (c) 2004</p>
+ *
+ *
+ * @author Chris Holcombe
+ * @version 1.0
+ */
+public class PluginInfo extends JFrame {
+  private JLabel jLabel1 = new JLabel();
+  private JLabel jLabel2 = new JLabel();
+  private JLabel jLabel3 = new JLabel();
+  private JLabel jLabel4 = new JLabel();
+  private JLabel jLabelName = new JLabel();
+  private JLabel jLabelAuthor = new JLabel();
+  private JLabel jLabelVersion = new JLabel();
+  private JTextArea jTextAreaDescript = new JTextArea();
+  private Container cp = getContentPane();
+
+  public PluginInfo() {
+    try {
+      jbInit();
+    }catch (Exception exception) {exception.printStackTrace();}
+  }
+
+  private void jbInit() throws Exception {
+    cp.setLayout(null);
+    jLabel1.setText("Plug in Author:");
+    jLabel1.setBounds(new Rectangle(8, 47, 130, 17));
+    jLabel3.setText("Plug in Version:");
+    jLabel3.setBounds(new Rectangle(8, 72, 130, 17));
+    jLabel4.setText("Plug in Description:");
+    jLabel4.setBounds(new Rectangle(8, 94, 130, 17));
+    jLabelName.setBorder(BorderFactory.createLineBorder(Color.black));
+    jLabelName.setText("");
+    jLabelName.setBounds(new Rectangle(152, 19, 193, 16));
+    jLabelAuthor.setBorder(BorderFactory.createLineBorder(Color.black));
+    jLabelAuthor.setBounds(new Rectangle(152, 50, 193, 16));
+    jLabelVersion.setBorder(BorderFactory.createLineBorder(Color.black));
+    jLabelVersion.setBounds(new Rectangle(152, 76, 193, 16));
+    jTextAreaDescript.setToolTipText("");
+    jTextAreaDescript.setBounds(new Rectangle(151, 102, 197, 131));
+    cp.add(jLabel1, null);
+    cp.add(jLabel2);
+    cp.add(jLabel3);
+    cp.add(jLabel4);
+    cp.add(jLabelAuthor);
+    cp.add(jLabelName);
+    cp.add(jLabelVersion);
+    cp.add(jTextAreaDescript);
+    jLabel2.setText("Plug in Name:");
+    jLabel2.setBounds(new Rectangle(8, 22, 97, 17));
+  }
+  /**
+   * Set the plug in name
+   * @param name String
+   */
+  public void setName(String name){
+    jLabelName.setText(name);
+  }
+  /**
+   * Get the plug in name
+   * @return String
+   */
+  public String getName(){
+    return jLabelName.getText();
+  }
+  /**
+   * Set the plug in author
+   * @param author String
+   */
+  public void setAuthor(String author){
+    jLabelAuthor.setText(author);
+  }
+  /**
+   * Get the plug in author
+   * @return String
+   */
+  public String getAuthor(){
+    return jLabelAuthor.getText();
+  }
+  /**
+   * Set the plug in version
+   * @param version String
+   */
+  public void setVersion(String version){
+    jLabelVersion.setText(version);
+  }
+  /**
+   * Get the plug in version
+   * @return String
+   */
+  public String getVersion(){
+    return jLabelVersion.getText();
+  }
+
+}

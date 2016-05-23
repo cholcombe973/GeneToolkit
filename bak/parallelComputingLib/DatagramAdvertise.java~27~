@@ -1,0 +1,64 @@
+package parallelComputingLib;
+
+import java.nio.channels.DatagramChannel;
+import java.nio.*;
+import java.net.*;
+import java.util.*;
+import java.io.*;
+
+public class DatagramAdvertise extends Thread {
+  private DatagramChannel c;
+  private String data;
+  private boolean server;
+  private Timer timer;
+  private int port;
+
+  public DatagramAdvertise(DatagramChannel dc, boolean server, int port){
+    this.c = dc;
+    this.server = server;
+    this.port = port;
+  }
+  public void setData(String data){
+    this.data = data;
+  }
+  public void setData(long data){
+    this.data = String.valueOf(data);
+  }
+  public void run(){
+    try{
+      String inet = InetAddress.getLocalHost().toString();
+      final String address = MakeInetString(inet);
+      if(c.isOpen()){
+        //send advertisments on 15sec intervals
+        timer = new Timer();
+        timer.scheduleAtFixedRate(new TimerTask(){
+          ByteBuffer src = ByteBuffer.allocateDirect(1024);
+          public void run(){
+            try{
+              src.clear();
+              if(server)
+                src.put((byte)'3');
+              else
+                src.put((byte)'1');
+              src.put(data.getBytes());
+              src.flip();
+              //Setup buffer for outgoing advertisement
+              SocketAddress target = new InetSocketAddress(InetAddress.getByName(address),port);
+              //Fire off advertisement
+              c.send(src,target);
+            }catch(IOException e){System.out.println("IOException in DatagramAdvertise run(): " + e);}
+          }
+        },5000,5000);
+      }else{
+        System.out.println("Channel not yet opened");
+        return;
+      }
+    }catch(UnknownHostException e ){System.out.println("UnknownHostException in DatagramAdvertise run(): " + e);}
+  }
+  public void stopAdvertise(){
+    timer.cancel();
+  }
+  private String MakeInetString(String inet){
+   return inet.substring(inet.indexOf("/")+1,inet.length()-(inet.length()- inet.lastIndexOf(".") - 1)).concat("255");
+ }
+}

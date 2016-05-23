@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<Module>
+	<Name>NetworkModule</Name>
+	<Author>Chris Holcombe</Author>
+	<Description>Handles network operations</Description>
+	<Version>1.0</Version>
+	<Library>NetworkModule.jar</Library>
+	<Class>NetworkModule</Class>
+	<Package>networkmodule</Package>
+	<Handle>network</Handle>
+</Module>

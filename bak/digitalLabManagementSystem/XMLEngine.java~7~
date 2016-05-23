@@ -1,0 +1,74 @@
+package digitalLabManagementSystem;
+
+
+/*
+   Handles all the details with parsing the plugin xml files for the platform
+*/
+
+import java.io.*;
+
+public class XMLEngine {
+  private File storageFile;
+  private String[] toListenFor;
+  private ReferenceEngine re;
+
+  public void XMLEngine(){
+    re.putReference("XMLEngine",this);
+  }
+
+  public void parseFile(){
+    try {
+      FileInputStream in = new FileInputStream(storageFile);
+      String tag = "";
+      String value = "";
+      int val = 0;
+      while((val=in.read())!=-1){
+        if(((char)val) == '<'){
+          if(value!=""){
+            processTag(tag,value);
+          }
+          value = "";
+          tag = "";
+          while(((char)(val=in.read())) !='>'){
+            tag +=(char)val;
+          }
+        }
+        if((char)val!='>'){
+          value += (char) val;
+        }
+      }
+      in.close();
+    }catch (FileNotFoundException ex) {System.out.println("FileNotFoundException: " + ex);}
+    catch(IOException e){System.out.println("IOException: " + e);}
+
+  }
+  public void setParseFile(File storageFile){
+    this.storageFile = storageFile;
+  }
+  public void registerTags(String[] toListenFor){
+    this.toListenFor = toListenFor;
+  }
+  private void processTag(String tag,String value){
+
+    for(int i=0;i<toListenFor.length;i++){
+      if(tag.equalsIgnoreCase(toListenFor[i])){
+
+      }
+    }
+    /*
+       if(tag.equalsIgnoreCase("DVDOnHand")){
+  //    dvdsOnHand.add(value);
+  }
+  else if(tag.equalsIgnoreCase("GameOnHand")){
+//    gamesOnHand.add(value);
+  }
+  else if(tag.equalsIgnoreCase("DVDOut")){
+//    dvdsOut.add(value);
+  }
+  else if(tag.equalsIgnoreCase("GameOut")){
+//    gamesOut.add(value);
+  }
+*/
+}
+
+}

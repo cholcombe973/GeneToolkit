@@ -1,0 +1,106 @@
+package digitalLabManagementSystem;
+
+/*
+  Boots up the Plugin Architecture and gets things rolling
+
+ */
+import BayesianNetworks.BayesNet;
+import java.util.*;
+import javax.swing.UIManager;
+
+public class Main {
+
+  public static void main(String[] args){
+    Main m = new Main();
+    m.guiInit();
+//    m.init();
+  }
+  public void guiInit(){
+    try {
+      UIManager.setLookAndFeel(UIManager.getSystemLookAndFeelClassName());
+    }catch(Exception e) {e.printStackTrace();}
+
+    ReferenceEngine re = new ReferenceEngine();
+    ModuleManager mm = new ModuleManager(re);
+    mm.setModuleDirectory("plugins");
+    mm.setInterfaceDirectory("interfaces");
+    XMLModule xmlm = new XMLModule(re);
+    xmlm.initModule();
+    mm.findModules();
+    System.out.println("You pussy piece of shit");
+    GuiApp ga = new GuiApp(re);
+  }
+  public void init(){
+    //startup the reference engine
+    ReferenceEngine re = new ReferenceEngine();
+
+    //startup the module manager
+    ModuleManager mm = new ModuleManager(re);
+
+    //this needs to be parsed out of a property file
+    mm.setModuleDirectory("plugins");
+    mm.setInterfaceDirectory("interfaces");
+
+
+    //startup the necessary bootstrap modules
+    XMLModule xmlm = new XMLModule(re);
+    xmlm.initModule();
+    mm.findModules();
+
+//Grab the database module and test it
+//    System.out.println("Testing the database module");
+//    IDatabase idb = (IDatabase)mm.requestModule("database");
+//    idb.setPropertiesFile(new File(""));
+//    idb.connect();
+//    idb.prepareStatement("Select * from something");
+//    idb.executePreparedQuery();
+//    idb.disconnect();
+    //Done testing database module
+
+
+/*
+    //Grab the drawing module and test it
+    System.out.println("Testing the drawing module");
+    Frame f = new Frame("StringArt v1.0") {
+      private int mNumberOfLines = 25;
+//      private Color[] mColors = { Color.red, Color.green, Color.blue };
+      IDraw idraw = (IDraw)mm.requestModule("draw");
+      public void paint(Graphics g) {
+
+        idraw.setGraphics(g);
+        idraw.moveTo(0,0);
+//        Graphics2D g2 = (Graphics2D)g;
+        Dimension d = getSize();
+        for (int i = 0; i < mNumberOfLines; i++) {
+          double ratio = (double)i / (double)mNumberOfLines;
+//          Line2D line = new Line2D.Double(0, ratio * d.height,ratio * d.width, d.height);
+          idraw.curveTo(0, (float)ratio * d.height,(float)ratio * d.width, d.height);
+
+//          g2.setPaint(mColors[i % mColors.length]);
+//          g2.draw(line);
+        }
+        idraw.renderScene();
+      }
+    };
+    f.setSize(600, 600);
+    f.setVisible(true);
+*/
+    //Done testing the drawing module
+
+    //Test the alarm module
+//    System.out.println("Testing the alarm module");
+//    Calendar c = Calendar.getInstance();
+//    c.set(2004,9,10,15,0,0);
+
+//    IAlarm alarm = (IAlarm)mm.requestModule("alarm");
+//    alarm.setAlarm(c.getTime(),"Time to eat!");
+//    alarm.setRepeatingAlarm(d,"Hello",3,10000);
+//    xmlm.cleanupModule();
+    System.out.println("Testing JavaBayesModule");
+    IJavaBayes jb = (IJavaBayes)mm.requestModule("JavaBayes");
+    jb.startJavaBayes();
+
+    //cleanup time
+    mm.shutdownModules();
+  }
+}

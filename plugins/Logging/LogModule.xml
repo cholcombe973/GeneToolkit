@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<Module>
+	<Name>LogModule</Name>
+	<Author>Chris Holcombe</Author>
+	<Description>Handles logging operations</Description>
+	<Version>1.0</Version>
+	<Library>LogModule.jar</Library>
+	<Class>LogModule</Class>
+	<Package>logmodule</Package>
+	<Handle>log</Handle>
+</Module>

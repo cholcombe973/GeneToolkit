@@ -1,0 +1,243 @@
+package digitalLabManagementSystem;
+
+/*
+   The Extensible GUI!
+ */
+
+import java.awt.*;
+import java.awt.dnd.*;
+import java.awt.datatransfer.*;
+import java.awt.event.*;
+import java.util.*;
+import javax.swing.*;
+import java.io.*;
+import static digitalLabManagementSystem.Constants.*;
+/**
+ *
+ * <p>Title: GUI</p>
+ *
+ * <p>Description: The GUI to make plugin's more visible and aid in manipulating them.</p>
+ *
+ * <p>Copyright: Copyright (c) 2004</p>
+ *
+ * @author Chris Holcombe
+ * @version 1.0
+ */
+public class GUI extends JFrame {
+  private JPanel contentPane = (JPanel)getContentPane();
+  private JMenuBar menuBar = new JMenuBar();                 //the menubar
+  private ReferenceEngine re;                                //reference engine to store everything
+  private JMenu jMenu1 = new JMenu();
+  private JMenuItem jMenuItem1 = new JMenuItem();
+  private JMenu jMenu2 = new JMenu();
+  private JMenuItem jMenuItem2 = new JMenuItem();
+  private JMenuItem jMenuItem2_1 = new JMenuItem();
+  private JMenuItem jMenuItem2_2 = new JMenuItem();
+  private JMenu jMenu3 = new JMenu();
+  private JMenuItem jMenuItem3 = new JMenuItem();
+  private JLabel jLabel = new JLabel();
+  private JLabel jLabel2 = new JLabel();
+  private JList pluginJList;
+  private JList runningPluginJList;
+  private JScrollPane jScrollPane;
+  private JScrollPane jScrollPane2;
+  private DefaultListModel listModel;
+  private DefaultListModel listModel2;
+  private DropTarget pluginListDT;
+  private DropTarget runningPluginListDT;
+  private ModuleManager mm;
+
+  public GUI(ReferenceEngine re) {
+    this.re = re;
+    re.putReference("GUI",this);
+    try {
+      jbInit();
+    }catch(Exception e) {e.printStackTrace();}
+  }
+  private void jbInit() throws Exception {
+    listModel = new DefaultListModel();
+    listModel2 = new DefaultListModel();
+
+    pluginJList = new JList(listModel);
+    pluginJList.setSelectionMode(ListSelectionModel.SINGLE_SELECTION);
+    pluginJList.setDragEnabled(true);
+    jScrollPane = new JScrollPane(pluginJList);
+
+    runningPluginJList = new JList(listModel2);
+    runningPluginJList.setSelectionMode(ListSelectionModel.SINGLE_SELECTION);
+    runningPluginJList.setDragEnabled(true);
+    jScrollPane2 = new JScrollPane(runningPluginJList);
+
+    contentPane.setLayout(null);
+    setSize(new Dimension(575, 550));
+    setTitle("Plugin Toolkit");
+    jMenu1.setText("File");
+    jMenuItem1.setText("Exit");
+    jMenuItem1.addActionListener(new ActionListener(){
+      public void actionPerformed(ActionEvent e){
+        System.exit(0);
+      }
+    });
+    jMenu2.setText("Plugin");
+    jMenuItem2.setText("Info");
+    jMenuItem2.addActionListener(new ActionListener(){
+      public void actionPerformed(ActionEvent e){
+        //info action
+        JOptionPane.showMessageDialog((GUI)re.getReference("GUI"),"Event Source: "+e.getSource(),"Title",JOptionPane.INFORMATION_MESSAGE);
+      }
+    });
+    jMenuItem2_1.setText("Load");
+    jMenuItem2_1.addActionListener(new ActionListener(){
+      public void actionPerformed(ActionEvent e){
+        //Load action
+        System.out.println("Source: " + e.getSource());
+      }
+    });
+    jMenuItem2_2.setText("Unload");
+    jMenuItem2_2.addActionListener(new ActionListener(){
+      public void actionPerformed(ActionEvent e){
+        //unload action
+        System.out.println("Source: " + e.getSource());
+      }
+    });
+    jMenu3.setText("Help");
+    jMenuItem3.setText("About");
+    jMenuItem3.addActionListener(new ActionListener(){
+      public void actionPerformed(ActionEvent e){
+        //show the help menu
+        System.out.println("Source: " + e.getSource());
+      }
+    });
+    runningPluginListDT = new DropTarget();
+    runningPluginListDT.addDropTargetListener(new DropTargetListener(){
+      public void dragEnter(DropTargetDragEvent dtde){}
+      public void dragExit(DropTargetEvent dte){}
+      public void dragOver(DropTargetDragEvent dtde){}
+      public void drop(DropTargetDropEvent dtde){
+        try {
+          Transferable data = dtde.getTransferable();
+          String pluginName = (String)data.getTransferData(DataFlavor.stringFlavor);
+          //grab the plugin name, startup the plugin, show that it's running
+          addItemToRunningList(pluginName);
+          removeItemFromAvailableList(pluginName);
+        }catch (IOException ex) {System.out.println("IOException in GUI jbinit(): " + ex);}
+        catch (UnsupportedFlavorException ex) {System.out.println("UnsupportedFlavorException in GUI jbinit(): " + ex);}
+      }
+      public void dropActionChanged(DropTargetDragEvent dtde){}
+    });
+    pluginListDT = new DropTarget();
+    pluginListDT.addDropTargetListener(new DropTargetListener(){
+      public void dragEnter(DropTargetDragEvent dtde){}
+      public void dragExit(DropTargetEvent dte){}
+      public void dragOver(DropTargetDragEvent dtde){}
+      public void drop(DropTargetDropEvent dtde){
+        try {
+          Transferable data = dtde.getTransferable();
+          String pluginName = (String)data.getTransferData(DataFlavor.stringFlavor);
+          //grab the plugin name, stop the plugin, show that it's stopped
+          removeItemFromRunningList(pluginName);
+          addItemToAvailableList(pluginName);
+        }catch (IOException ex) {System.out.println("IOException in GUI jbinit(): " + ex);}
+        catch (UnsupportedFlavorException ex) {System.out.println("UnsupportedFlavorException in GUI jbinit(): " + ex);}
+      }
+      public void dropActionChanged(DropTargetDragEvent dtde){}
+
+    });
+
+    pluginJList.setDropTarget(pluginListDT);
+    runningPluginJList.setDropTarget(runningPluginListDT);
+
+    jLabel.setText("Available Plugins");
+    jLabel.setBounds(5,13,150,15);
+    jLabel2.setText("Running Plugins");
+    jLabel2.setBounds(450,13,150,15);  //***setup the bounds***
+    jScrollPane.setBounds(new Rectangle(5, 30, 100, 413));
+    jScrollPane2.setBounds(new Rectangle(450,30,100,413));
+    contentPane.add(jScrollPane);
+    contentPane.add(jScrollPane2);
+    contentPane.add(menuBar);
+    contentPane.add(jLabel);
+    contentPane.add(jLabel2);
+    menuBar.add(jMenu1);
+    menuBar.add(jMenu2);
+    menuBar.add(jMenu3);
+    jMenu1.add(jMenuItem1);
+    jMenu2.add(jMenuItem2);
+    jMenu2.add(jMenuItem2_1);
+    jMenu2.add(jMenuItem2_2);
+    jMenu3.add(jMenuItem3);
+    setJMenuBar(menuBar);
+
+    mm = (ModuleManager)re.getReference("ModuleManager");
+    addPluginsToList(mm.getAllModules());
+
+  }
+  protected void processWindowEvent(WindowEvent e) {
+    super.processWindowEvent(e);
+    if (e.getID() == WindowEvent.WINDOW_CLOSING)
+      System.exit(0);
+  }
+  /**
+   * Add's an array of modules to the list of available plugins.
+   * @param modules Module[]
+   */
+  private void addPluginsToList(Module[] modules){
+    int size = modules.length;
+    for(int i=0;i<size;i++){
+      Module m = modules[i];
+      if(m.getState() == RUNNING){
+        listModel2.addElement(m.getName());
+      }
+      else
+        listModel.addElement(m.getName());
+    }
+  }
+  /**
+   * Used to verify the list components are working correctly.
+   */
+  private void addSamplePluginsToList(){
+    listModel.addElement("Plugin 1");
+    listModel.addElement("Plugin 2");
+    listModel2.addElement("Plugin 1_1");
+    listModel2.addElement("Plugin 2_1");
+  }
+  private void addItemToRunningList(String name){
+    listModel2.addElement(name);
+  }
+  private void removeItemFromRunningList(String name){
+    listModel2.removeElement(name);
+  }
+  private void addItemToAvailableList(String name){
+    listModel.addElement(name);
+  }
+  private void removeItemFromAvailableList(String name){
+    listModel.removeElement(name);
+  }
+  private boolean isModuleRunning(Module m){
+
+    return false;
+  }
+  /**
+   * Do i really want to give the menubar to plugins?  That could create a disaster
+   * 1. Create methods to register when a plugin wants to add content material
+   * 2. Let them sort it out.
+   * 3.
+   * @return JMenuBar
+   */
+  public JMenuBar getGUIMenuBar(){
+    return menuBar;
+  }
+  /**
+   * Do i really want to give the contentpane to plugins?  That could create a disaster..
+   * Solutions?
+   * 1. Create methods to register when a plugin wants to add content material
+   * and check to see if that area isn't already taken.  If it is, return something like u messed up.
+   * 2. Let them sort it out.
+   * 3.
+   * @return JPanel
+   */
+  public JPanel getGUIContentPane(){
+    return contentPane;
+  }
+
+}

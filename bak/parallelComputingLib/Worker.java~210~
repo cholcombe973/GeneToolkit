@@ -1,0 +1,253 @@
+package parallelComputingLib;
+
+import java.io.*;
+import java.net.*;
+import java.nio.*;
+import java.nio.channels.*;
+
+/**
+ *
+ * <p>Title: Worker</p>
+ * <p>Description:
+ * This class is the workhorse.  It runs whatever the server deals out and sends back results.
+ * <br>Methods dealing with handling of data are all synchronized for multithreaded use.
+ * <br>UDP port: 6866, send all advertisements using this port.
+ * <br>TCP port: 6867, send all data using this port.
+ * </p>
+ * <p>Copyright: Copyright (c) 2004</p>
+ * <p>Company: </p>
+ * @author not attributable
+ * @version 1.0
+ */
+
+public class Worker implements NetworkListener{
+  private DatagramAdvertise advertising;
+  private DatagramChannel channel;
+  private String inet;
+  private String address;
+  private boolean connected = false;
+  private boolean advertise = true;
+  private ComputerProperties server = new ComputerProperties();
+  private TCPListen tcpListener;
+  private ByteBuffer internalBuffer;
+  private boolean firstCall= true;
+
+  /**
+   * Simple main method used to test the class.
+   * @param args String[]
+   */
+  public static void main(String[] args){
+    Worker w = new Worker();
+    w.setupWorker();
+//    w.setupAdvertising();
+  }
+  /**
+   * Implementation side effect.  Method does nothing.
+   * @param listener NetworkListener
+   */
+  public void addListener(NetworkListener listener){}
+  /**
+   * Implementation side effect.  Method does nothing.
+   * @param listener NetworkListener
+   */
+  public void removeListener(NetworkListener listener){}
+
+  /**
+   * This method is used to process network events.  This method is best used to identify which event is taking
+   * place and to use another method to handle specific events.
+   * @param e NetworkEvent  The network event to process.
+   */
+  public void networkEventOccurred(NetworkEvent e){
+    //handle data here
+    if(e.isTCPEvent()&&e.isReadEvent())
+      collectData(e.getData(), e.getChannel());
+    else
+      identifyUDPData(e.getData(), e.getIP());
+  }
+  /**
+   * Method called just before exiting.  This method broadcasts out to other peers that it's exiting.
+   */
+  public void shutdown(){
+    sendKillMessage();
+  }
+  /**
+   * This method is called to connect to a specific server once it's been identified on the network.
+   * @param ip String The string passed in is the ip of the computer you would like to connect to.
+   */
+  private void connectToServer(String ip){
+    tcpListener = new TCPListen(6867,ip,false);
+    tcpListener.addListener(this);
+    tcpListener.setup();
+    tcpListener.start();
+    connected=true;
+    System.out.println("Reconnected to server");
+  }
+  /**
+   * This method broadcasts out to all over computers that it's leaving the group.
+   */
+  private void sendKillMessage(){
+    //Sends a UDP packet stateing that the Worker is leaving the group
+    try{
+      ByteBuffer killMsg = ByteBuffer.allocate(5);
+      killMsg.put("0".getBytes());
+      killMsg.flip();
+      inet = InetAddress.getLocalHost().toString();
+      address = makeInetString( inet );
+      DatagramSender ds = new DatagramSender(channel,killMsg, new InetSocketAddress(InetAddress.getByName(address),6866));  //start the sending service
+      ds.start();
+    }catch(IOException e){System.out.println("IOException in sendKillMessage(): " + e);}
+  }
+  /**
+   * This is the first method to call after creating a new Worker instance.  It setups up listeners
+   * and channels.
+   */
+  public void setupWorker(){
+    UDPListen UDPlistener = new UDPListen(6866);
+    UDPlistener.setup();
+    UDPlistener.addListener(this);
+    UDPlistener.start();
+
+    channel = UDPlistener.getChannel();
+  }
+  /**
+   * Calling this will stop the worker from broadcasting out it's ip address over the network.
+   */
+  private void stopAdvertising(){
+    advertise = false;
+    advertising.stopAdvertise();
+  }
+  /**
+   * This method sets up and starting advertising it's unique id and ip address over the network.
+   */
+  public void setupAdvertising(){
+      advertising = new DatagramAdvertise(channel,false,6866); //Start sending advertisements of location
+      advertising.setData(System.currentTimeMillis());
+      advertising.start();
+  }
+  /**
+   * This method overcomes TCP/IP's packet fragmentation issue.  When data is passed to a socket and transferred,
+   * it's up to the operating system and the routers to transmit the data where it needs to go.  If that means breaking
+   * a large packet up into smaller ones, or rolling smaller packets into 1 large one it's done without the application's
+   * knowledge.  The data transfer protocol I setup for my test's is very ridged and packet fragmentation breaks the protocol.
+   * <p>If you choose to use this method with your server/worker setup it assumes the first 8 bytes of the first packet
+   * contains the expected size it's waiting for.  It will then gather ByteBuffer's together until the expected size is achieved,
+   * and passes the reconstructed packet onto identifyTCPData(ByteBuffer msg, SocketChannel callback);</p>
+   * <p>If you choose not to use this method, override networkEventOccurred() so that this isn't called.</p>
+   * <p>A possible error could occur with this method if the first packet is smaller than 16 bytes.  If it is
+   * the collectData method won't read the correct size to wait for.</p>
+   * @param newData ByteBuffer The next ByteBuffer to store.
+   * @param callback SocketChannel The reference to the callback channel to be called on when needed.
+   */
+  private void collectData(ByteBuffer newData,SocketChannel callback){
+    if(firstCall){
+      firstCall = false;
+      int numberOfRows = (int)newData.getLong(8);
+      int numbersPerRow = (int)newData.getLong(16);
+
+      //allocate internal buffer, protocol data + (numberOfRows * numbersPerRow * 8 bytes per double)
+      internalBuffer = ByteBuffer.allocate(24+(numberOfRows*numbersPerRow*8));
+
+      int size = newData.limit();
+      for(int i=0;i<size;i++){
+        if(internalBuffer.hasRemaining())
+          internalBuffer.put(newData.get(i));
+      }
+      if(!internalBuffer.hasRemaining()){
+        internalBuffer.flip();
+        firstCall = true;
+        identifyTCPData(internalBuffer, callback);
+      }
+    }else{
+      int size = newData.limit();
+      for(int i=0;i<size;i++){
+        if(internalBuffer.hasRemaining())
+          internalBuffer.put(newData.get(i));
+      }
+      if(!internalBuffer.hasRemaining()){
+        internalBuffer.flip();
+        firstCall = true;
+        identifyTCPData(internalBuffer, callback);
+      }
+    }
+  }
+  /**
+   * This is the method where all the TCP data processing takes place.  For custom workers override this method
+   * with any processing the worker needs to perform and send back results with the callback channel given.
+   * @param msg ByteBuffer
+   * @param callback SocketChannel
+   */
+  private void identifyTCPData(ByteBuffer msg, SocketChannel callback){
+    long startingRow = msg.getLong(); //send this back to server to ident the row we worked on
+    int numberOfRows = (int)msg.getLong();
+    int numbersPerRow = (int)msg.getLong();
+
+    int size = ((msg.limit()-24)/8);
+    int pointer = 0;
+    double returnVal = 0;
+
+    ByteBuffer returnValBuffer = ByteBuffer.allocate((numberOfRows*8)+8);
+    returnValBuffer.putLong(startingRow);
+
+    for(int i=0;i<size;i++){
+      if(pointer<numbersPerRow){
+        returnVal+=msg.getDouble();
+        pointer++;
+      }else{
+        pointer = 0;
+        returnValBuffer.putDouble(returnVal);
+        returnVal = 0;
+
+        returnVal +=msg.getDouble();
+        pointer++;
+      }
+    }
+    returnValBuffer.putDouble(returnVal);
+
+    returnValBuffer.flip();
+    try {
+      callback.write(returnValBuffer);
+    }catch (IOException ex) {System.out.println("IOException in identifyTCPData(): " + ex);}
+  }
+  /**
+   * This method is called by networkEventOccurred when UDP data was identified.  It parses out any useful
+   * information from that packet and sends it where it's needed.
+   * @param msg ByteBuffer The buffer containing the packet received in the network event.
+   * @param ip String The string representing ip address where the packet orginated from.
+   */
+  private void identifyUDPData(ByteBuffer msg, String ip){
+    int n = Character.getNumericValue((char)msg.get(0));
+
+    switch(n){
+      case 0:
+        //kill message
+        if(server.computerIP.equals(ip)){
+//          tcpListener.shutdown();
+//          tcpListener = null;
+//          System.out.println("Tcp listener shut down");
+//          connected = false;
+          System.exit(0);
+        }
+        break;
+      case 3:
+        server.computerID = String.valueOf(msg.getLong(1));
+        server.computerIP = ip;
+        if(!connected)
+          connectToServer(ip);
+        break;
+
+        case 4:
+          //stop advertising
+          if(advertise)
+            stopAdvertising();
+          break;
+    }
+  }
+  /**
+   * This method takes and ip address and removes the last 3 digits and attaches 255 for broadcasting.
+   * @param inet String The string representation of the current ip address.
+   * @return String Returns the ip address with 255.
+   */
+  private String makeInetString(String inet){
+    return inet.substring(inet.indexOf("/")+1,inet.length()-(inet.length() - inet.lastIndexOf(".") - 1)).concat("255");
+  }
+}

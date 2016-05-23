@@ -1,0 +1,36 @@
+package digitalLabManagementSystem;
+
+import java.util.*;
+
+public class BackupModuleManager {
+  private LinkedList taskQueue;
+
+  public BackupModuleManager() {
+
+  }
+
+  public void registerCapability(){
+
+  }
+  public void unregisterCapability(){
+
+  }
+  private void incrementModuleCount(){
+
+  }
+  private void decrementModuleCount(){
+
+  }
+  public void setModuleAuthor(String author){
+
+  }
+  public void setModuleDescription(String desc){
+
+  }
+  public void requestModule(){
+
+  }
+  private void runTaskQueue(){
+
+  }
+}

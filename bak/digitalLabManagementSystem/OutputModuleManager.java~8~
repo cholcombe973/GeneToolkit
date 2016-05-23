@@ -1,0 +1,40 @@
+package digitalLabManagementSystem;
+
+import java.util.*;
+
+public class OutputModuleManager {
+  private LinkedList taskQueue;
+
+  public OutputModuleManager() {
+
+  }
+
+  public void registerCapability(){
+
+  }
+  public void unregisterCapability(){
+
+  }
+  private void incrementModuleCount(){
+
+  }
+  private void decrementModuleCount(){
+
+  }
+  public void setModuleAuthor(String author){
+
+  }
+  public void setModuleDescription(String desc){
+
+  }
+  public void requestModule(){
+
+  }
+  public void scheduleTask(){
+
+  }
+  private void runTaskQueue(){
+    //runs queued tasks when no other pressing work to do
+  }
+
+}

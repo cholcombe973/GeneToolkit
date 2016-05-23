@@ -1,0 +1,26 @@
+package parallelComputingLib;
+
+import java.nio.*;
+import java.nio.channels.*;
+import java.net.*;
+import java.io.*;
+
+public class DatagramSender extends Thread {
+  private DatagramChannel dc;
+  private ByteBuffer src;
+  private SocketAddress target;
+
+  public DatagramSender(DatagramChannel dc, ByteBuffer src,SocketAddress target){
+    this.dc  = dc;
+    this.src = src;
+    this.target = target;
+  }
+
+  public void run(){
+    try{
+      if(dc.isOpen()){
+        dc.send(src,target);
+      }
+      }catch(IOException e){System.out.println("IOException in DatagramSender run(): " + e);}
+  }
+}

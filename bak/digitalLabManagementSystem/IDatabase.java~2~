@@ -1,0 +1,17 @@
+package digitalLabManagementSystem;
+/*
+  Interface that database plugins will conform to
+*/
+import java.io.File;
+import java.sql.ResultSet;
+
+public interface IDatabase {
+  public void setPropertiesFile(File f);
+  public void prepareStatement(String statement);
+  public void setConnectionString(String connection);
+  public String getConnnectionString();
+  public void setDriver(String driver);
+  public String getDriver();
+  public ResultSet executePreparedQuery();
+  public int executePreparedUpdate();
+}

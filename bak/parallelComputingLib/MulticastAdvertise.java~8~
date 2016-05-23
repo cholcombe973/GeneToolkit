@@ -1,0 +1,60 @@
+package parallelComputingLib;
+
+import java.io.*;
+import java.net.*;
+import java.util.*;
+
+public class MulticastAdvertise {
+  private MulticastSocket ms;
+  private String data;
+  private boolean server;
+  private int port;
+
+  public static void main(String[] args){
+    //Tester for Multicast advertise
+    MulticastAdvertise ms = new MulticastAdvertise(6866,false);
+    ms.setData(System.currentTimeMillis());
+    ms.start();
+  }
+
+  public MulticastAdvertise(int port, boolean server) {
+    this.server = server;
+    this.port = port;
+  }
+  public void setData(String data){
+    this.data = data;
+  }
+  public void setData(long data){
+    this.data = String.valueOf(data);
+  }
+  public void start(){
+    System.out.println("Multicast Advertising service started");
+    try{
+      byte[] src = new byte[data.length()+1];
+      if(server)
+        src[0] = ((byte)'3');
+      else
+        src[0] = ((byte)'1');
+      int length = data.length();
+      byte[] bytes = data.getBytes();
+      for(int i=0;i<length;i++)
+        src[i+1] = bytes[i];
+      final DatagramPacket p = new DatagramPacket(src,src.length);
+      ms = new MulticastSocket(port);
+//      ms.joinGroup(InetAddress.getByName("228.5.6.7"));
+      ms.joinGroup(InetAddress.getByName("192.168.1.255"));
+      Timer t= new Timer();
+      t.scheduleAtFixedRate(new TimerTask(){
+        public void run(){
+          try{
+            ms.send(p);
+            System.out.println("\nAdvertisement sent");
+          }catch(IOException e){System.out.println("IOException in MulticaseAdvertise run(): " + e);}
+        }
+      },5000,5000);
+    }catch(IOException e){System.out.println("IOException in MulticastAdvertise start(): " + e);}
+  }
+  public void stop(){
+    ms.close();
+  }
+}

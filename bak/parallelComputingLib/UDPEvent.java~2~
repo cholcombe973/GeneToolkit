@@ -1,0 +1,9 @@
+package parallelComputingLib;
+
+import java.nio.ByteBuffer;
+
+public class UDPEvent {
+  public ByteBuffer data;
+  public String ip;
+
+}

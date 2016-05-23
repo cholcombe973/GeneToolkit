@@ -1,0 +1,24 @@
+package digitalLabManagementSystem;
+
+/**
+   Events to throw around the place
+**/
+
+public class GlobalEvent {
+  public static final long exampleModifier  =  0x0001; //potential modifiers
+  public static final long windowClosing    =  0x0002; //Window is closing
+  public static final long windowOpening    =  0x0004; //Window is opening
+  public static final long windowResizing   =  0x0008; //Window is resizing
+  public static final long windowModeChange =  0x0016; //Window is changing from minimized to maximized
+
+  private int modifiers;
+
+
+  public GlobalEvent(int modifiers) {
+    this.modifiers = modifiers;
+  }
+  public int getModifiers(){
+    return modifiers;
+  }
+
+}

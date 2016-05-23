@@ -1,0 +1,8 @@
+package digitalLabManagementSystem;
+
+public class ModuleStruct {
+  public String author;
+  public long moduleID;
+  public boolean moduleInUse;
+  public String description;
+}

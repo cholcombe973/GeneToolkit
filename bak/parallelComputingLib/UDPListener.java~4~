@@ -1,0 +1,9 @@
+package parallelComputingLib;
+
+
+
+public interface UDPListener {
+  public void addListener(UDPListener listener);
+  public void removeListener(UDPListener listener);
+  public void UDPEventOccured(NetworkEvent e);
+}

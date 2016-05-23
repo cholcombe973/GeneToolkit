@@ -1,0 +1,32 @@
+package digitalLabManagementSystem;
+
+import java.util.logging.*;
+
+public class LogModule extends Module implements ILog{
+  private ModuleManager ref;
+  private ReferenceEngine re;
+  private Logger logger = Logger.getLogger("LogModuleLogger");
+
+  public LogModule(ReferenceEngine re) {
+    this.re = re;
+  }
+  public void logSevereMsg(String msg){
+    logger.log(Level.SEVERE,msg);
+  }
+  public void logConfigMsg(String msg){
+    logger.log(Level.CONFIG,msg);
+  }
+  public void logWarningMsg(String msg){
+    logger.log(Level.WARNING,msg);
+  }
+  public void initModule(){
+    ref = (ModuleManager)re.getReference("ModuleManager");
+    ref.registerModule(".log",this);
+
+
+  }
+  public void cleanupModule(){
+    if(ref!=null)
+      ref.unregisterModule(".log");
+  }
+}

@@ -1,0 +1,9 @@
+package parallelComputingLib;
+
+
+
+public interface NetworkListener {
+  public void addListener(NetworkListener listener);
+  public void removeListener(NetworkListener listener);
+  public void networkEventOccured(NetworkEvent e);
+}

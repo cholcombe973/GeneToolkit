@@ -1,0 +1,7 @@
+package digitalLabManagementSystem;
+
+public abstract class Plugin {
+  public Plugin() {
+  }
+
+}

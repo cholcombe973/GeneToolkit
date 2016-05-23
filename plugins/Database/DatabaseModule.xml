@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<Module>
+	<Name>DatabaseModule</Name>
+	<Author>Chris Holcombe</Author>
+	<Description>Handles database connections</Description>
+	<Version>1.0</Version>
+	<Library>DatabaseModule.jar</Library>
+	<Class>DatabaseModule</Class>
+	<Package>databasemodule</Package>
+	<Handle>database</Handle>
+</Module>

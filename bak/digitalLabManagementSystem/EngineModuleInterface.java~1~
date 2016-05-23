@@ -1,0 +1,13 @@
+package genetoolkit;
+
+public interface EngineModuleInterface {
+
+  public void scoreNetwork();
+  public void createModuleNetwork();
+  public void assigneGenesToNetwork();
+  public void findRegulators();
+  public void notifyCompleted();
+  public void initModule();
+  public void cleanupModule();
+
+}

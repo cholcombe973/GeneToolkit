@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<Module>
+	<Name>CFSModule</Name>
+	<Author>Chris Holcombe</Author>
+	<Description>Fires up the CFS module</Description>
+	<Version>1.0</Version>
+	<Library>CFSModule.jar</Library>
+	<Class>CFSModule</Class>
+	<Package>cfsmodule</Package>
+	<Handle>CFS</Handle>
+</Module>

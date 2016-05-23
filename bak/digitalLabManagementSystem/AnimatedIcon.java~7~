@@ -1,0 +1,60 @@
+package digitalLabManagementSystem;
+
+/**
+ * <p>Title: AnimatedIcon</p>
+ *
+ * <p>Description: This class will extend JLabel to create an animated JLabel</p>
+ *
+ * <p>Copyright: Copyright (c) 2004</p>
+ *
+ *
+ * @author Chris Holcombe
+ * @version 1.0
+ */
+
+import java.awt.*;
+import java.awt.geom.*;
+import javax.swing.JLabel;
+
+public class AnimatedIcon extends JLabel{
+  private Thread t;
+  private boolean done = false;
+  private int width = 10;
+  private int height = 10;
+
+  public AnimatedIcon() {
+
+  }
+  public void start(){
+    animate();
+  }
+  public void stop(){
+    done = true;
+  }
+  public void paintComponent(Graphics g){
+    //make a cool little sine wave
+    super.paint(g);
+    Graphics2D g2 = (Graphics2D)g;
+    g2.setRenderingHint(RenderingHints.KEY_ANTIALIASING,RenderingHints.VALUE_ANTIALIAS_ON);
+    g2.setColor(Color.BLUE);
+    double x,y;
+    for(int i=0;i<=360;i++){
+      //sin(i) is the y value
+      //i is the x value
+      x = i;
+      y = Math.sin(i);
+      g2.drawOval(i,(int)y,width,height);
+    }
+  }
+  public void animate(){
+    t = new Thread(new Runnable(){
+      public void run(){
+        while(!done){
+          paintComponent(getGraphics());
+        }
+      }
+    });
+    t.start();
+  }
+
+}

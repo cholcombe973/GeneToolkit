@@ -1,0 +1,268 @@
+package parallelComputingLib;
+
+import java.io.*;
+import java.net.*;
+import java.nio.*;
+import java.nio.channels.*;
+import java.util.*;
+/**
+ * <p>Title: Server</p>
+ *
+ * <p>Description:
+ * This class acts like an orchestrator, while not doing any calculations itself it deals out work accordingly.
+ * Workers are started up first individually.  When the server is started it broadcasts for workers to connect.
+ * Server is started last it tells each worker to open up a connection to it and starts transferring data to them.
+ * A network callback model was used and is detailed more in NetworkEvent and the NetworkListener class.
+ * <p>
+ * The individual method calls work like this. All the following methods are abstract and need to have code provided
+ * by you the programmer.  First create a class that extends server.  Then implement each of the methods as follows:<br>
+ * <br>getWorkerData - This method can be called at any point but it's easiest to call it when a tcp event occurs.
+ * This method should return a bytebuffer formatted like your workers will expect.
+ * <br>handleData - This method is called on a read event which is assumed to have worker results.  This method
+ * should be used to store results, but anything can be done with the data.
+ * <br>identifyTCPDataAcceptEvent - An accept event is assumed to be a new worker asking for a connection and data.
+ * And with the callback channel that is provided getWorkerData is called to get data to write back to the worker.
+ * <br>identifyTCPDataReadEvent - A read event is assumed to have worker results contained in it.  handleData is called
+ * with the data and then getWorkerData is called to send new data back to the worker.
+ * <br>identifyUDPData - This method gets called each time a udp event occurs while the server is listening.
+ * </p>
+ *<br><br>
+ * Server port: 6866 receive all advertisements here.
+ *<br><br>
+ * Packet Format  ( All id's are the current system time )
+ *<br><br>
+ * Server Advertise Packet<br>
+ * [(byte)'3'| long id&nbsp]<br>
+ * [1 byte&nbsp&nbsp&nbsp| 8 bytes]
+ *<br><br>
+ * Worker Advertise Packet<br>
+ * [(byte)'1' | long id&nbsp]<br>
+ * [1 byte&nbsp&nbsp&nbsp&nbsp| 8 bytes]
+ *<br><br>
+ * Worker Row Sum Data Packet<br>
+ * [byte Operation | long row |long number of rows  |long numbers per row |Data...]<br>
+ * [ 1 byte        |  8 bytes | 8 bytes             |8 bytes              |    ...]<br>
+ *<br><br>
+ * Worker Row Sum Result Packet<br>
+ * [byte Operation | long row | double results...]<br>
+ * [ 1 byte        |  8 bytes | 8 bytes          ]<br>
+ * <br><br>
+ * Worker Component Density Data Packet<br>
+ * [byte Operation | long row |long number of rows  |long numbers per row |Data...]<br>
+ * [ 1 byte        |  8 bytes | 8 bytes             |8 bytes              |    ...]<br>
+ *<br><br>
+ * Worker Component Density Result Packet<br>
+ * [byte Operation | long row | double results...]<br>
+ * [ 1 byte        |  8 bytes | 8 bytes          ]<br>
+ * <br><br>
+ * Worker Division Data Packet<br>
+ * [byte Operation | long row |long number of rows  |long numbers per row | Data...]<br>
+ * [ 1 byte        |  8 bytes | 8 bytes             |8 bytes              |     ...]<br>
+ * Data = [Double denominator |Double numerators ... ]
+ *<br><br>
+ * Worker Division Result Packet<br>
+ * [byte Operation | long row | double results...]<br>
+ * [ 1 byte        |  8 bytes | 8 bytes          ]<br>
+ * <br><br>
+ * </p>
+ *
+ * <p>Copyright: Copyright (c) 2004</p>
+ * @author Chris Holcombe
+ * @version 1.0
+ */
+
+public abstract class Server implements NetworkListener{
+  protected ArrayList workers = new ArrayList();
+  protected DatagramChannel channel;
+  protected DatagramAdvertise advertising;
+  protected String inet;
+  protected String address;
+  protected long rowPointer = 0;
+  protected BufferedReader dataReader;
+  protected CFS cfs;
+  protected int doublesPerRow = 200;
+  protected TCPListen tcpListener = new TCPListen(6867,null,true);
+  protected long start;
+  protected ByteBuffer b = ByteBuffer.allocateDirect(8192+16);
+
+  /**
+   * Implementation side effect.
+   * @param listener NetworkListener
+   */
+  public void addListener(NetworkListener listener){}
+  /**
+   * Implementation side effect.
+   * @param listener NetworkListener
+   */
+  public void removeListener(NetworkListener listener){}
+
+  /**
+   * This method is used to process network events.  This method is best used to identify which event is taking
+   * place and to use another method to handle specific events.
+   * @param e NetworkEvent  The network event to process.
+   */
+  public void networkEventOccurred(NetworkEvent e){
+    if(e.isTCPEvent()&&e.isReadEvent())
+      identifyTCPDataReadEvent(e.getData(), e.getReadSize(), e.getChannel());
+    else if(e.isTCPEvent()&&e.isAcceptEvent())
+      identifyTCPDataAcceptEvent(e.getChannel());
+    else
+      identifyUDPData(e.getData(),e.getIP());
+  }
+  /**
+   * This is the first method to call after creating a new Server instance.  It setups up listeners
+   * and channels.
+   */
+  public void setupServer(){
+    UDPListen UDPlistener = new UDPListen(6866);
+    UDPlistener.setup();
+    UDPlistener.addListener(this);
+    UDPlistener.start();
+
+    channel = UDPlistener.getChannel();
+
+    tcpListener.addListener(this);
+    tcpListener.setup();
+    tcpListener.start();
+  }
+  /**
+   * This method is called each time a worker returns a result packet and is ready for new data to be sent.
+   * This method needs an implementation to complete the class.
+   * @return ByteBuffer Returns a ByteBuffer to be sent to the worker for processing.
+   */
+  protected abstract ByteBuffer getWorkerData();
+  /**
+   * This method removes a worker from the pool of available workers.
+   * @param ip String The ip address of the worker being removed.
+   */
+  protected void removeWorker(String ip){
+    int size = workers.size();
+    for(int i=0;i<size;i++){
+      if(ip.equals(((ComputerProperties)workers.get(i)).computerIP)){
+        workers.remove(i);
+        break;
+      }
+    }
+  }
+  /**
+   * This method is called when networkEventOccurred has identified data as a TCP read event.<br>
+   * Custom data processing on the server side can be obtained by providing an implementation with your code.<br>
+   * Read events are assumed to be results from workers processing data.<br>
+   * @param msg ByteBuffer Incoming data sent from worker.
+   * @param read int The read size of the packet.
+   * @param callback SocketChannel The SocketChannel to write back to the worker with if needed.
+   */
+  protected abstract void identifyTCPDataReadEvent(ByteBuffer msg, int read, SocketChannel callback);
+  /**
+   * This method is called when networkEventOccurred has identified data as a TCP accept event.<br>
+   * Custom data processing on the server side can be obtained by providing an implementation with your code.<br>
+   * Accept events are assumed to be new workers connecting to the server for data to be processed.<br>
+   * @param callback SocketChannel The SocketChannel to write back to the worker with if needed.
+   */
+  protected abstract void identifyTCPDataAcceptEvent(SocketChannel callback);
+
+  /**
+   * This method is called when networkEventOccurred has identified data as a UDP event.<br>
+   * UDP data is broadcasted data from workers or server's identifying themselves or making requests.<br>
+   * Custom data processing on the server side can be obtained by providing an implementation with your code.<br>
+   * Since UDP is not guaranteed it is not used for sending any results or worker data.
+   * @param msg ByteBuffer The ByteBuffer packet from the worker.
+   * @param ip String The ip address of the packet to optionally use to write back with.
+   */
+  protected abstract void identifyUDPData(ByteBuffer msg, String ip);
+  /**
+   * Workers broadcast their position on the network at a timed interval.  To avoid adding the same worker to the pool
+   * more than once this method is called when worker identification packets are processed.  This method is used in
+   * conjunction with stopWorkerAdvertising() to avoid jamming up the network with broadcast packets.
+   * @param cp ComputerProperties The ip address and ID of the computer being checked.
+   */
+  protected void checkForDuplicateWorker(ComputerProperties cp){
+    int size =workers.size();
+    for(int i=0;i<size;i++){
+      if((((ComputerProperties)workers.get(i)).computerIP).equals(cp.computerIP)){
+        return;
+      }
+    }
+    workers.add(cp);
+  }
+  /**
+   * This method is called each time a result packet is sent back from a worker.  The ByteBuffer is pulled apart
+   * and all results are stored in the CFS system.<br>
+   * Custom data processing can be obtained by providing an implementation with your code.
+   * @param data ByteBuffer The ByteBuffer result packet from the worker.
+   */
+  protected abstract void handleData(ByteBuffer data);
+  /**
+   * This method takes and ip address and removes the last 3 digits and attaches 255 for broadcasting.
+   * @param inet String The string representation of the current ip address.
+   * @return String Returns the ip address with 255.
+   */
+  protected String makeInetString(String inet){
+    return inet.substring(inet.indexOf("/")+1,inet.length()-(inet.length() - inet.lastIndexOf(".") - 1)).concat("255");
+  }
+  /**
+   * This method is called when the server is about to shut down to inform all workers that no more data needs processing.
+   * After a worker recieves this method it calles System.exit(0) on itself to shutdown.
+   */
+  protected void sendKillMessage(){
+    //Sends a UDP packet stateing that the Server is leaving the group
+    try{
+      ByteBuffer killMsg = ByteBuffer.allocate(1);
+      killMsg.put((byte)'0');
+      killMsg.flip();
+      inet = InetAddress.getLocalHost().toString();
+      address = makeInetString( inet );
+      DatagramSender ds = new DatagramSender(channel,killMsg, new InetSocketAddress(InetAddress.getByName(address),6866));
+      ds.start();
+    }catch(IOException e){System.out.println("IOException in sendKillMessage(): " + e);}
+  }
+  /**
+   * This method sets up and starting advertising it's unique id and ip address over the network.
+   */
+  public void setupAdvertising(){
+    advertising = new DatagramAdvertise(channel,true,6866); //Start sending advertisements of location
+    advertising.setData(System.currentTimeMillis());
+    advertising.start();
+  }
+  /**
+   * This method sets up the storage file system.  It makes a call to ServerProps.txt in order to find where it's
+   * getting data from and where it should be stored.
+   * <br>ServerProps looks like this
+   * <p>
+   * StorageFile=Results.txt
+   * <br>
+   * DataFile=Data.txt
+   * </p>
+   */
+  public void setupStorageFile(){
+    Properties p = new Properties();
+    try {
+      p.load(new FileInputStream("ServerProps.txt"));
+      dataReader = new BufferedReader(new FileReader(new File(p.getProperty("DataFile"))),16384);
+      cfs = new CFS(p.getProperty("StorageFile"));
+      cfs.storeMetaData("ID1","test");
+    }catch (IOException ex) {System.out.println("IOException in setupStorageFile(): " + ex);}
+  }
+  /**
+   * When a worker is identified this method is called to help alleivate the network of broadcast conjestion
+   * @param ip String The ip address of the worker to stop advertising.
+   */
+  protected void stopWorkerAdvertising(String ip){
+    ByteBuffer stop = ByteBuffer.allocate(1);
+    stop.put((byte)'4');
+    stop.flip();
+    try{
+      DatagramSender ds = new DatagramSender(channel,stop,new InetSocketAddress(InetAddress.getByName(ip),6866));
+      ds.start();
+    }catch(IOException e){System.out.println("IOException in stopWorkerAdvertising(): " + e);}
+  }
+  /**
+   * This is the last method called before exiting and it sends a kill message to all workers to shut down
+   * as well as shuts down the file system.
+   */
+  public void shutdown(){
+    sendKillMessage();
+    cfs.shutdown();
+    System.exit(0);
+  }
+}

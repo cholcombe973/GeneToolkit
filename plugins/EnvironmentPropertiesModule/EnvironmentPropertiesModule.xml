@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<Module>
+	<Name>EnvironmentPropertiesModule</Name>
+	<Author>Chris Holcombe</Author>
+	<Description>Fires up the EnvironmentProperties module</Description>
+	<Version>1.0</Version>
+	<Library>EnvironmentPropertiesModule.jar</Library>
+	<Class>EnvironmentPropertiesModule</Class>
+	<Package>environmentpropertiesmodule</Package>
+	<Handle>EnvProp</Handle>
+</Module>
