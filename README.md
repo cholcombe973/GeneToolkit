@@ -1,7 +1,7 @@
 # GeneToolkit
 Part of the what I did in college series.  Ignore the fact that this says GeneToolkit.  This project is essentially a cluster 
 that performs MapReduce jobs.  The [Worker.java](https://github.com/cholcombe973/GeneToolkit/blob/master/src/parallelComputingLib/Worker.java)
-class performs work that is given to it and sends it back to the central server.
+class performs work that is given to it and sends it back to the central server.  This was built back in 2002-2004 time frame so I'm not certain if it will compile with today's java.  
 
 * Description:
  * The [Server.java](https://github.com/cholcombe973/GeneToolkit/blob/master/src/parallelComputingLib/Server.java) class acts 
