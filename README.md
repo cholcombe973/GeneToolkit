@@ -3,6 +3,8 @@ Part of the what I did in college series.  Ignore the fact that this says GeneTo
 that performs MapReduce jobs.  The [Worker.java](https://github.com/cholcombe973/GeneToolkit/blob/master/src/parallelComputingLib/Worker.java)
 class performs work that is given to it and sends it back to the central server.  This was built back in 2002-2004 time frame so I'm not certain if it will compile with today's java.  
 
+* JavaDocs are available [here](http://cholcombe973.github.io/GeneToolkit/)
+
 * Description:
  * The [Server.java](https://github.com/cholcombe973/GeneToolkit/blob/master/src/parallelComputingLib/Server.java) class acts 
 like an orchestrator, while not doing any calculations itself it deals out work accordingly.
